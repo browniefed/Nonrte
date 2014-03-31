@@ -1,0 +1,3 @@
+[submodule "libs/backburner"]
+	path = libs/backburner
+	url = https://github.com/ebryn/backburner.js.git
