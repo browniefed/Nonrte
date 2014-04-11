@@ -18,6 +18,7 @@ define([
 		keyboard.bind(Keys, this.emitKey.bind(this), 'keypress');
 		keyboard.bind('space', this.emitSpace.bind(this));
 		keyboard.bind('backspace', this.emitBackspace.bind(this));
+		keyboard.bind('enter', this.emitEnter.bind(this));
 	};
 
 	KeyHandler.prototype.registerKeyHandler = function(cb) {
@@ -34,6 +35,10 @@ define([
 
 	KeyHandler.prototype.emitBackspace = function(e) {
 		this.keyHandlers[0]('backspace');
+	}
+
+	KeyHandler.prototype.emitEnter = function(e) {
+		this.keyHandlers[0]('enter');
 	}
 	return KeyHandler;
 	

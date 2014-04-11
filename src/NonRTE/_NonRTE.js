@@ -1,26 +1,45 @@
 define([
-	'keys/KeyHandler'
-	], function(KeyHandler) {
+	'keys/KeyHandler',
+	'lines/LineHandler'
+	], function(
+		KeyHandler,
+		LineHandler
+		) {
 
 	var NonRTE = function(element) {
-		this.keysPressed = '';
 		this.element = element;
-		
 		this.keyhandler = new KeyHandler();
+		this.lineHandler = new LineHandler(this.element);
+		this.focusedLine = 0;
+
+		debugger;
+		this.lineHandler.createLine();
 
 		this.keyhandler.init();
 		this.keyhandler.registerKeyHandler(function(key) {
-			if (key == 'space') {
-				key = '&nbsp;';
-			}
+			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+
 			if (key == 'backspace') {
-				this.keysPressed = this.keysPressed.substring(0, this.keysPressed.length - 1);
+				if (textEl && textEl.length) {
+					textEl.deleteData(textEl.data.length - 1, 1)
+				} else if (textEl && !textEl.length) {
+					if (this.focusedLine) {
+						this.focusedLine--;
+					}
+				}
+				return;
+			}
+			else if (key == 'enter') {
+				this.lineHandler.createLine();
+				this.focusedLine = this.lineHandler.getLines().length - 1;
+				return;
 			} else {
-				this.keysPressed += key;
+				if (key == 'space') {
+					key = '\u00a0';
+				}
+				textEl.appendData(key);
 			}
 
-			console.log( this.keysPressed);
-			this.element.innerHTML = this.keysPressed;
 		}.bind(this));
 
 	}
