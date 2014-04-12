@@ -12,7 +12,6 @@ define([
 		this.lineHandler = new LineHandler(this.element);
 		this.focusedLine = 0;
 
-		debugger;
 		this.lineHandler.createLine();
 
 		this.keyhandler.init();
