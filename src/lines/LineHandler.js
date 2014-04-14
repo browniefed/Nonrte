@@ -1,7 +1,7 @@
 define([
-	'lines/CreateLine'
+	'lines/Line'
 	], function(
-		CreateLine
+		Line
 		) {
 	var LineHandler = function(el) {
 		this.el = el;
@@ -9,7 +9,7 @@ define([
 	};
 
 	LineHandler.prototype.createLine = function() {
-		var line = new CreateLine();
+		var line = new Line();
 		this.lines.push(line);
 		this.el.appendChild(line.getNode());
 		return line;
