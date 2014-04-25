@@ -7,9 +7,12 @@ define([], function() {
 
 	var CreateLine = function() {
 		this.node = document.createElement('div');
+		this.innerLine = document.createElement('div');
+		this.innerLine.classList.add('nonrte-line-inner');
 		this.node.classList.add('nonrte-line');
 		this.textNode = document.createTextNode('');
-		this.node.appendChild(this.textNode);
+		this.node.appendChild(this.innerLine);
+		this.innerLine.appendChild(this.textNode);
 
 		return this;
 	};

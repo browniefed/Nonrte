@@ -41,6 +41,34 @@ define([
 
 		}.bind(this));
 
+	};
+
+	//CREATE MIXIN HERE
+	NonRTE.prototype.registerKey = function(key, fn) {
+		this.keyHandler.registerKeyListener(key, fn);
+	};
+
+	NonRTE.prototype.registerKeySequence = function() {
+
+	};
+
+	//What the hell kind of name is this
+	//This creates a key trigger for a function to be called after a key is pressed until the 'stop()' on the called object is called
+	//Mainly a developer thing but might come in handy
+	NonRTE.prototype.registerKeyObserveTrigger = function(key, fn) {
+		//register keypress
+		this.keyHandler.registerKeyListener(key, fn);
+		//register it as a observer keypress
+		//return an event with various positioning, range, and info
+		//This method should provide original line + position and current line + position, if deletions happened etc to help the dev figure out what they need to do
+		
+		return {
+			stop: function() {
+
+			}
+		};
+
+
 	}
 
 	return NonRTE;
