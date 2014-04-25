@@ -8,8 +8,8 @@ define([
 		this.lines = [];
 	};
 
-	LineHandler.prototype.createLine = function() {
-		var line = new Line();
+	LineHandler.prototype.createLine = function(characterWidths) {
+		var line = new Line(characterWidths);
 		this.lines.push(line);
 		this.el.appendChild(line.getNode());
 		return line;

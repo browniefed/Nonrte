@@ -473,20 +473,56 @@ var keys_KeyHandler = function (Keys, keyboard) {
         return KeyHandler;
     }(keys_Keys, libs_keyboard);
 
+var events_ClickHandler = function () {
+        var ClickHandler = function (node, fn) {
+            node.addEventListener('click', fn, false);
+        };
+        return ClickHandler;
+    }();
+
+var utils_text_measureCharacterWidth = function () {
+        var getCharWidth = function (myChar, characterWidths) {
+            if (!!characterWidths._charWidthArray['_' + myChar]) {
+                return characterWidths._charWidthArray['_' + myChar];
+            } else {
+                characterWidths._charWidthArray['_' + myChar] = characterWidths._maxWidth;
+                return characterWidths._maxWidth;
+            }
+        };
+        return getCharWidth;
+    }();
+
+var coords_getOffsetFromClick = function (measureCharacterWidth) {
+        var getOffsetFromClick = function (text, offset, characterWidths) {
+            var currentOffset = 0, characterWidth = 0, offsetX = 0;
+            text.split('').forEach(function (character) {
+                characterWidth = measureCharacterWidth(character, characterWidths);
+                if (currentOffset + characterWidth < offset.x) {
+                    currentOffset += characterWidth;
+                    offsetX = currentOffset + characterWidth;
+                }
+            });
+            return offsetX;
+        };
+        return getOffsetFromClick;
+    }(utils_text_measureCharacterWidth);
+
 /*
 	CreateLine
 
 	Will create a new line at a specified area. If it is beyond the length of the current lines then it will be created at the end.
 */
-var lines_Line = function () {
-        var CreateLine = function () {
+var lines_Line = function (ClickHandler, getOffsetFromClick) {
+        var CreateLine = function (characterWidths) {
+            this.characterWidths = characterWidths;
             this.node = document.createElement('div');
             this.innerLine = document.createElement('div');
             this.innerLine.classList.add('nonrte-line-inner');
             this.node.classList.add('nonrte-line');
-            this.textNode = document.createTextNode('\u2422');
+            this.textNode = document.createTextNode('');
             this.node.appendChild(this.innerLine);
             this.innerLine.appendChild(this.textNode);
+            ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
             return this;
         };
         CreateLine.prototype.getNode = function () {
@@ -495,16 +531,23 @@ var lines_Line = function () {
         CreateLine.prototype.getTextNode = function () {
             return this.textNode;
         };
+        CreateLine.prototype.lineClickHandle = function (e) {
+            console.log(arguments);
+            console.log(getOffsetFromClick(this.textNode.data, {
+                x: e.offsetX,
+                y: e.offsetY
+            }, this.characterWidths));
+        };
         return CreateLine;
-    }();
+    }(events_ClickHandler, coords_getOffsetFromClick);
 
 var lines_LineHandler = function (Line) {
         var LineHandler = function (el) {
             this.el = el;
             this.lines = [];
         };
-        LineHandler.prototype.createLine = function () {
-            var line = new Line();
+        LineHandler.prototype.createLine = function (characterWidths) {
+            var line = new Line(characterWidths);
             this.lines.push(line);
             this.el.appendChild(line.getNode());
             return line;
@@ -518,13 +561,62 @@ var lines_LineHandler = function (Line) {
         return LineHandler;
     }(lines_Line);
 
-var NonRTE__NonRTE = function (KeyHandler, LineHandler) {
+var NonRTE_init_buildCharacterWidths = function () {
+        var generateASCIIwidth = function (cssStyle) {
+            var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0, oldTotalWidth = 0, charWidth = 0, _cssStyle = cssStyle || 'font-family: arial; font-size: 12pt', _maxWidth = 0, _charWidthArray = {};
+            container = document.createDocumentFragment();
+            divWrapper = document.createElement('div');
+            divWrapper.style = 'width: 6000px; visibility:hidden';
+            charWrapper = document.createElement('span');
+            charWrapper.style = cssStyle;
+            testDrive = document.createElement('span');
+            testDrive.appendChild(document.createTextNode('i'));
+            divWrapper.appendChild(charWrapper);
+            container.appendChild(divWrapper);
+            document.body.appendChild(container);
+            charWrapper.appendChild(document.createTextNode('f'));
+            charWrapper.appendChild(testDrive);
+            totalWidth = charWrapper.offsetWidth;
+            charWrapper.insertBefore(document.createTextNode('\xA0'), testDrive);
+            oldTotalWidth = totalWidth;
+            totalWidth = charWrapper.offsetWidth;
+            charWidth = totalWidth - oldTotalWidth + 0.4;
+            _charWidthArray['_ '] = charWidth;
+            for (var i = 33; i <= 126; i++) {
+                character = String.fromCharCode(i);
+                charWrapper.insertBefore(document.createTextNode('' + character + character), testDrive);
+                oldTotalWidth = totalWidth;
+                totalWidth = charWrapper.offsetWidth;
+                charWidth = (totalWidth - oldTotalWidth) / 2;
+                _charWidthArray['_' + character] = charWidth;
+                if (_maxWidth < _charWidthArray['_' + character]) {
+                    _maxWidth = _charWidthArray['_' + character];
+                }
+            }
+            document.body.removeChild(divWrapper);
+            return {
+                _maxWidth: _maxWidth,
+                _charWidthArray: _charWidthArray
+            };
+        };
+        return generateASCIIwidth;
+    }();
+
+var NonRTE_init_init = function (buildCharacterWidths) {
+        var init = function (obj) {
+            obj.characterWidths = buildCharacterWidths();
+        };
+        return init;
+    }(NonRTE_init_buildCharacterWidths);
+
+var NonRTE__NonRTE = function (KeyHandler, LineHandler, init) {
         var NonRTE = function (element) {
             this.element = element;
             this.keyhandler = new KeyHandler();
             this.lineHandler = new LineHandler(this.element);
             this.focusedLine = 0;
-            this.lineHandler.createLine();
+            init(this);
+            this.lineHandler.createLine(this.characterWidths);
             this.keyhandler.init();
             this.keyhandler.registerKeyHandler(function (key) {
                 var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
@@ -549,8 +641,20 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler) {
                 }
             }.bind(this));
         };
+        NonRTE.prototype.registerKey = function (key, fn) {
+            this.keyHandler.registerKeyListener(key, fn);
+        };
+        NonRTE.prototype.registerKeySequence = function () {
+        };
+        NonRTE.prototype.registerKeyObserveTrigger = function (key, fn) {
+            this.keyHandler.registerKeyListener(key, fn);
+            return {
+                stop: function () {
+                }
+            };
+        };
         return NonRTE;
-    }(keys_KeyHandler, lines_LineHandler);
+    }(keys_KeyHandler, lines_LineHandler, NonRTE_init_init);
 
 var NonRTE = function (NonRTE) {
         return NonRTE;

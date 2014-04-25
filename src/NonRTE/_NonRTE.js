@@ -1,9 +1,11 @@
 define([
 	'keys/KeyHandler',
-	'lines/LineHandler'
+	'lines/LineHandler',
+	'NonRTE/init/init'
 	], function(
 		KeyHandler,
-		LineHandler
+		LineHandler,
+		init
 		) {
 
 	var NonRTE = function(element) {
@@ -11,8 +13,9 @@ define([
 		this.keyhandler = new KeyHandler();
 		this.lineHandler = new LineHandler(this.element);
 		this.focusedLine = 0;
+		init(this);
 
-		this.lineHandler.createLine();
+		this.lineHandler.createLine(this.characterWidths);
 
 		this.keyhandler.init();
 		this.keyhandler.registerKeyHandler(function(key) {
@@ -40,6 +43,7 @@ define([
 			}
 
 		}.bind(this));
+
 
 	};
 

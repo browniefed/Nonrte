@@ -1,0 +1,5 @@
+/* line 1, ../sass/nonrte.scss */
+.nonrte-line-inner {
+  position: relative;
+  min-height: 20px;
+}

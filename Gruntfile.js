@@ -97,9 +97,15 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					cwd: 'build/',
-					src: [ '**/*' ],
+					src: [ '**/*'],
 					dest: 'release/<%= pkg.version %>/'
-				}]
+				}, 
+				{
+					expand: false,
+					src: [ 'sass/css/*'],
+					dest: 'release/<%= pkg.version %>/'
+				}
+				]
 			}
 		}
 	});
@@ -122,6 +128,6 @@ module.exports = function(grunt) {
 		'copy:release'
 	]);
 
-	grunt.registerTask( 'release', [ 'default', 'copy:release', 'copy:link' ] );
+	grunt.registerTask( 'release', [ 'default', 'copy:release' ] );
 
 };
