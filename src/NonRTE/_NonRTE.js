@@ -1,21 +1,27 @@
 define([
 	'keys/KeyHandler',
 	'lines/LineHandler',
-	'NonRTE/init/init'
+	'cursor/Cursor',
+	'NonRTE/init/init',
+	'libs/pubsub'
 	], function(
 		KeyHandler,
 		LineHandler,
-		init
+		Cursor,
+		init,
+		pubsub
 		) {
 
 	var NonRTE = function(element) {
 		this.element = element;
 		this.keyhandler = new KeyHandler();
 		this.lineHandler = new LineHandler(this.element);
+		this.cursor = new Cursor();
 		this.focusedLine = 0;
 		init(this);
 
-		this.lineHandler.createLine();
+		//Create the first line and position the cursor on it
+		this.cursor.positionOnLine(this.lineHandler.createLine());
 
 		this.keyhandler.init();
 		this.keyhandler.registerKeyHandler(function(key) {
@@ -44,7 +50,10 @@ define([
 
 		}.bind(this));
 
-
+		pubsub.subscribe('lineClick', function(sub, e) {
+			this.cursor.positionOnLine(e.line);
+			this.cursor.position(e.characterOffset);
+		}.bind(this))
 	};
 
 	//CREATE MIXIN HERE

@@ -1,0 +1,52 @@
+@-webkit-keyframes blink {
+  0%   { background: transparent }
+  47%  { background: transparent }
+  50%  { background: #000 }
+  97%  { background: #000 }
+  100% { background: transparent }
+}
+ 
+@-moz-keyframes blink {
+    0%   { background: transparent }
+  47%  { background: transparent }
+  50%  { background: #000 }
+  97%  { background: #000 }
+  100% { background: transparent }
+}
+ 
+@-ms-keyframes blink {
+  0%   { background: transparent }
+  47%  { background: transparent }
+  50%  { background: #000 }
+  97%  { background: #000 }
+  100% { background: transparent }
+}
+ 
+@-o-keyframes blink {
+  0%   { background: transparent }
+  47%  { background: transparent }
+  50%  { background: #000 }
+  97%  { background: #000 }
+  100% { background: transparent }
+}
+
+.nonrte-cursor {
+  display: inline-block;
+  background: #111;
+  position: absolute;
+  left: 0;
+  top: 5px;
+  height: 20px;
+  width:  1px;
+
+  &.blink {
+  -webkit-animation: blink 1s linear 0s infinite;
+  -moz-animation: blink 1s linear 0s infinite;
+  -ms-animation: blink 1s linear 0s infinite;
+  -o-animation: blink 1s linear 0s infinite;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}

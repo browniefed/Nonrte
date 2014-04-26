@@ -3,3 +3,133 @@
   position: relative;
   min-height: 20px;
 }
+
+@-webkit-keyframes blink {
+  /* line 2, ../sass/_cursor.scss */
+  0% {
+    background: transparent;
+  }
+
+  /* line 3, ../sass/_cursor.scss */
+  47% {
+    background: transparent;
+  }
+
+  /* line 4, ../sass/_cursor.scss */
+  50% {
+    background: black;
+  }
+
+  /* line 5, ../sass/_cursor.scss */
+  97% {
+    background: black;
+  }
+
+  /* line 6, ../sass/_cursor.scss */
+  100% {
+    background: transparent;
+  }
+}
+
+@-moz-keyframes blink {
+  /* line 10, ../sass/_cursor.scss */
+  0% {
+    background: transparent;
+  }
+
+  /* line 11, ../sass/_cursor.scss */
+  47% {
+    background: transparent;
+  }
+
+  /* line 12, ../sass/_cursor.scss */
+  50% {
+    background: black;
+  }
+
+  /* line 13, ../sass/_cursor.scss */
+  97% {
+    background: black;
+  }
+
+  /* line 14, ../sass/_cursor.scss */
+  100% {
+    background: transparent;
+  }
+}
+
+@-ms-keyframes blink {
+  /* line 18, ../sass/_cursor.scss */
+  0% {
+    background: transparent;
+  }
+
+  /* line 19, ../sass/_cursor.scss */
+  47% {
+    background: transparent;
+  }
+
+  /* line 20, ../sass/_cursor.scss */
+  50% {
+    background: black;
+  }
+
+  /* line 21, ../sass/_cursor.scss */
+  97% {
+    background: black;
+  }
+
+  /* line 22, ../sass/_cursor.scss */
+  100% {
+    background: transparent;
+  }
+}
+
+@-o-keyframes blink {
+  /* line 26, ../sass/_cursor.scss */
+  0% {
+    background: transparent;
+  }
+
+  /* line 27, ../sass/_cursor.scss */
+  47% {
+    background: transparent;
+  }
+
+  /* line 28, ../sass/_cursor.scss */
+  50% {
+    background: black;
+  }
+
+  /* line 29, ../sass/_cursor.scss */
+  97% {
+    background: black;
+  }
+
+  /* line 30, ../sass/_cursor.scss */
+  100% {
+    background: transparent;
+  }
+}
+
+/* line 33, ../sass/_cursor.scss */
+.nonrte-cursor {
+  display: inline-block;
+  background: #111;
+  position: absolute;
+  left: 0;
+  top: 5px;
+  height: 20px;
+  width: 1px;
+}
+/* line 42, ../sass/_cursor.scss */
+.nonrte-cursor.blink {
+  -webkit-animation: blink 1s linear 0s infinite;
+  -moz-animation: blink 1s linear 0s infinite;
+  -ms-animation: blink 1s linear 0s infinite;
+  -o-animation: blink 1s linear 0s infinite;
+}
+/* line 49, ../sass/_cursor.scss */
+.nonrte-cursor.hidden {
+  display: none;
+}

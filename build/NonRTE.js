@@ -510,25 +510,69 @@
 		return ClickHandler;
 	}();
 
-	var utils_text_measureCharacterWidth = function() {
-		var getCharWidth = function( myChar, characterWidths ) {
-			if ( !! characterWidths._charWidthArray[ '_' + myChar ] ) {
-				return characterWidths._charWidthArray[ '_' + myChar ];
-			} else {
-				characterWidths._charWidthArray[ '_' + myChar ] = characterWidths._maxWidth;
-				return characterWidths._maxWidth;
-			}
-		};
-		return getCharWidth;
+	var utils_text_buildCharacterWidths = function() {
+		var buildCharacterWidths = function() {
+			var _maxWidth = 0,
+				_charWidthArray = {};
+			var generateASCIIwidth = function( cssStyle ) {
+				var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0,
+					oldTotalWidth = 0,
+					charWidth = 0,
+					_cssStyle = cssStyle || 'font-family: arial; font-size: 12pt';
+				container = document.createDocumentFragment();
+				divWrapper = document.createElement( 'div' );
+				divWrapper.style = 'width: 6000px; visibility:hidden';
+				charWrapper = document.createElement( 'span' );
+				charWrapper.style = cssStyle;
+				testDrive = document.createElement( 'span' );
+				testDrive.appendChild( document.createTextNode( 'i' ) );
+				divWrapper.appendChild( charWrapper );
+				container.appendChild( divWrapper );
+				document.body.appendChild( container );
+				charWrapper.appendChild( document.createTextNode( 'f' ) );
+				charWrapper.appendChild( testDrive );
+				totalWidth = charWrapper.offsetWidth;
+				charWrapper.insertBefore( document.createTextNode( '\xA0' ), testDrive );
+				oldTotalWidth = totalWidth;
+				totalWidth = charWrapper.offsetWidth;
+				charWidth = totalWidth - oldTotalWidth + 0.4;
+				_charWidthArray[ '_ ' ] = charWidth;
+				for ( var i = 33; i <= 126; i++ ) {
+					character = String.fromCharCode( i );
+					charWrapper.insertBefore( document.createTextNode( '' + character + character ), testDrive );
+					oldTotalWidth = totalWidth;
+					totalWidth = charWrapper.offsetWidth;
+					charWidth = ( totalWidth - oldTotalWidth ) / 2;
+					_charWidthArray[ '_' + character ] = charWidth;
+					if ( _maxWidth < _charWidthArray[ '_' + character ] ) {
+						_maxWidth = _charWidthArray[ '_' + character ];
+					}
+				}
+				document.body.removeChild( divWrapper );
+			};
+			generateASCIIwidth();
+			var getCharacterWidth = function( character ) {
+				if ( !! _charWidthArray[ '_' + character ] ) {
+					return _charWidthArray[ '_' + character ];
+				} else {
+					_charWidthArray[ '_' + character ] = _maxWidth;
+					return _maxWidth;
+				}
+			};
+			return {
+				getCharacterWidth: getCharacterWidth
+			};
+		}();
+		return buildCharacterWidths;
 	}();
 
-	var coords_getOffsetFromClick = function( measureCharacterWidth ) {
-		var getOffsetFromClick = function( text, offset, characterWidths ) {
+	var coords_getOffsetFromClick = function( buildCharacterWidths ) {
+		var getOffsetFromClick = function( text, offset ) {
 			var currentOffset = 0,
 				characterWidth = 0,
 				offsetX = 0;
 			text.split( '' ).forEach( function( character ) {
-				characterWidth = measureCharacterWidth( character, characterWidths );
+				characterWidth = buildCharacterWidths.getCharacterWidth( character );
 				if ( currentOffset + characterWidth < offset.x ) {
 					currentOffset += characterWidth;
 					offsetX = currentOffset + characterWidth;
@@ -537,16 +581,157 @@
 			return offsetX;
 		};
 		return getOffsetFromClick;
-	}( utils_text_measureCharacterWidth );
+	}( utils_text_buildCharacterWidths );
+
+	/*
+Copyright (c) 2010,2011,2012,2013 Morgan Roderick http://roderick.dk
+License: MIT - http://mrgnrdrck.mit-license.org
+
+https://github.com/mroderick/PubSubJS
+*/
+	/*jslint white:true, plusplus:true, stupid:true*/
+	/*global
+	setTimeout,
+	module,
+	exports,
+	define,
+	require,
+	window
+*/
+	var libs_pubsub = function() {
+
+		var PubSub = {}, messages = {}, lastUid = -1;
+
+		function hasKeys( obj ) {
+			var key;
+			for ( key in obj ) {
+				if ( obj.hasOwnProperty( key ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function throwException( ex ) {
+			return function reThrowException() {
+				throw ex;
+			};
+		}
+
+		function callSubscriberWithDelayedExceptions( subscriber, message, data ) {
+			try {
+				subscriber( message, data );
+			} catch ( ex ) {
+				setTimeout( throwException( ex ), 0 );
+			}
+		}
+
+		function callSubscriberWithImmediateExceptions( subscriber, message, data ) {
+			subscriber( message, data );
+		}
+
+		function deliverMessage( originalMessage, matchedMessage, data, immediateExceptions ) {
+			var subscribers = messages[ matchedMessage ],
+				callSubscriber = immediateExceptions ? callSubscriberWithImmediateExceptions : callSubscriberWithDelayedExceptions,
+				s;
+			if ( !messages.hasOwnProperty( matchedMessage ) ) {
+				return;
+			}
+			for ( s in subscribers ) {
+				if ( subscribers.hasOwnProperty( s ) ) {
+					callSubscriber( subscribers[ s ], originalMessage, data );
+				}
+			}
+		}
+
+		function createDeliveryFunction( message, data, immediateExceptions ) {
+			return function deliverNamespaced() {
+				var topic = String( message ),
+					position = topic.lastIndexOf( '.' );
+				deliverMessage( message, message, data, immediateExceptions );
+				while ( position !== -1 ) {
+					topic = topic.substr( 0, position );
+					position = topic.lastIndexOf( '.' );
+					deliverMessage( message, topic, data );
+				}
+			};
+		}
+
+		function messageHasSubscribers( message ) {
+			var topic = String( message ),
+				found = Boolean( messages.hasOwnProperty( topic ) && hasKeys( messages[ topic ] ) ),
+				position = topic.lastIndexOf( '.' );
+			while ( !found && position !== -1 ) {
+				topic = topic.substr( 0, position );
+				position = topic.lastIndexOf( '.' );
+				found = Boolean( messages.hasOwnProperty( topic ) && hasKeys( messages[ topic ] ) );
+			}
+			return found;
+		}
+
+		function publish( message, data, sync, immediateExceptions ) {
+			var deliver = createDeliveryFunction( message, data, immediateExceptions ),
+				hasSubscribers = messageHasSubscribers( message );
+			if ( !hasSubscribers ) {
+				return false;
+			}
+			if ( sync === true ) {
+				deliver();
+			} else {
+				setTimeout( deliver, 0 );
+			}
+			return true;
+		}
+		PubSub.publish = function( message, data ) {
+			return publish( message, data, false, PubSub.immediateExceptions );
+		};
+		PubSub.publishSync = function( message, data ) {
+			return publish( message, data, true, PubSub.immediateExceptions );
+		};
+		PubSub.subscribe = function( message, func ) {
+			if ( typeof func !== 'function' ) {
+				return false;
+			}
+			if ( !messages.hasOwnProperty( message ) ) {
+				messages[ message ] = {};
+			}
+			var token = 'uid_' + String( ++lastUid );
+			messages[ message ][ token ] = func;
+			return token;
+		};
+		PubSub.unsubscribe = function( tokenOrFunction ) {
+			var isToken = typeof tokenOrFunction === 'string',
+				result = false,
+				m, message, t, token;
+			for ( m in messages ) {
+				if ( messages.hasOwnProperty( m ) ) {
+					message = messages[ m ];
+					if ( isToken && message[ tokenOrFunction ] ) {
+						delete message[ tokenOrFunction ];
+						result = tokenOrFunction;
+						break;
+					} else if ( !isToken ) {
+						for ( t in message ) {
+							if ( message.hasOwnProperty( t ) && message[ t ] === tokenOrFunction ) {
+								delete message[ t ];
+								result = true;
+							}
+						}
+					}
+				}
+			}
+			return result;
+		};
+		return PubSub;
+	}();
 
 	/*
 	CreateLine
 
 	Will create a new line at a specified area. If it is beyond the length of the current lines then it will be created at the end.
 */
-	var lines_Line = function( ClickHandler, getOffsetFromClick ) {
-		var CreateLine = function( characterWidths ) {
-			this.characterWidths = characterWidths;
+	var lines_Line = function( ClickHandler, getOffsetFromClick, pubsub ) {
+		var CreateLine = function() {
 			this.node = document.createElement( 'div' );
 			this.innerLine = document.createElement( 'div' );
 			this.innerLine.classList.add( 'nonrte-line-inner' );
@@ -564,22 +749,30 @@
 			return this.textNode;
 		};
 		CreateLine.prototype.lineClickHandle = function( e ) {
-			console.log( arguments );
-			console.log( getOffsetFromClick( this.textNode.data, {
-				x: e.offsetX,
-				y: e.offsetY
-			}, this.characterWidths ) );
+			var message = {
+				line: this,
+				original: e,
+				offsets: {
+					x: e.offsetX,
+					y: e.offsetY
+				},
+				characterOffset: getOffsetFromClick( this.textNode.data, {
+					x: e.offsetX,
+					y: e.offsetY
+				} ) + 2
+			};
+			pubsub.publish( 'lineClick', message );
 		};
 		return CreateLine;
-	}( events_ClickHandler, coords_getOffsetFromClick );
+	}( events_ClickHandler, coords_getOffsetFromClick, libs_pubsub );
 
 	var lines_LineHandler = function( Line ) {
 		var LineHandler = function( el ) {
 			this.el = el;
 			this.lines = [];
 		};
-		LineHandler.prototype.createLine = function( characterWidths ) {
-			var line = new Line( characterWidths );
+		LineHandler.prototype.createLine = function() {
+			var line = new Line();
 			this.lines.push( line );
 			this.el.appendChild( line.getNode() );
 			return line;
@@ -593,67 +786,46 @@
 		return LineHandler;
 	}( lines_Line );
 
-	var NonRTE_init_buildCharacterWidths = function() {
-		var generateASCIIwidth = function( cssStyle ) {
-			var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0,
-				oldTotalWidth = 0,
-				charWidth = 0,
-				_cssStyle = cssStyle || 'font-family: arial; font-size: 12pt',
-				_maxWidth = 0,
-				_charWidthArray = {};
-			container = document.createDocumentFragment();
-			divWrapper = document.createElement( 'div' );
-			divWrapper.style = 'width: 6000px; visibility:hidden';
-			charWrapper = document.createElement( 'span' );
-			charWrapper.style = cssStyle;
-			testDrive = document.createElement( 'span' );
-			testDrive.appendChild( document.createTextNode( 'i' ) );
-			divWrapper.appendChild( charWrapper );
-			container.appendChild( divWrapper );
-			document.body.appendChild( container );
-			charWrapper.appendChild( document.createTextNode( 'f' ) );
-			charWrapper.appendChild( testDrive );
-			totalWidth = charWrapper.offsetWidth;
-			charWrapper.insertBefore( document.createTextNode( '\xA0' ), testDrive );
-			oldTotalWidth = totalWidth;
-			totalWidth = charWrapper.offsetWidth;
-			charWidth = totalWidth - oldTotalWidth + 0.4;
-			_charWidthArray[ '_ ' ] = charWidth;
-			for ( var i = 33; i <= 126; i++ ) {
-				character = String.fromCharCode( i );
-				charWrapper.insertBefore( document.createTextNode( '' + character + character ), testDrive );
-				oldTotalWidth = totalWidth;
-				totalWidth = charWrapper.offsetWidth;
-				charWidth = ( totalWidth - oldTotalWidth ) / 2;
-				_charWidthArray[ '_' + character ] = charWidth;
-				if ( _maxWidth < _charWidthArray[ '_' + character ] ) {
-					_maxWidth = _charWidthArray[ '_' + character ];
-				}
-			}
-			document.body.removeChild( divWrapper );
-			return {
-				_maxWidth: _maxWidth,
-				_charWidthArray: _charWidthArray
-			};
+	var cursor_Cursor = function() {
+		var cursorClasses = {
+			standard: 'nonrte-cursor',
+			focus: 'blink',
+			hidden: 'hidden'
 		};
-		return generateASCIIwidth;
+		var Cursor = function() {
+			this.cursorNode = document.createElement( 'div' );
+			this.cursorNode.classList.add( cursorClasses.standard );
+			this.cursorNode.classList.add( cursorClasses.focus );
+		};
+		Cursor.prototype.positionOnLine = function( line ) {
+			line.getNode().appendChild( this.cursorNode );
+		};
+		Cursor.prototype.position = function( x ) {
+			this.cursorNode.style.left = x + 'px';
+		};
+		Cursor.prototype.hide = function() {
+			this.cursorNode.classList.add( 'hidden' );
+		};
+		Cursor.prototype.show = function() {
+			this.cursorNode.classList.remove( 'hidden' );
+		};
+		return Cursor;
 	}();
 
 	var NonRTE_init_init = function( buildCharacterWidths ) {
-		var init = function( obj ) {
-			obj.characterWidths = buildCharacterWidths();
-		};
+		var init = function() {};
 		return init;
-	}( NonRTE_init_buildCharacterWidths );
+	}( utils_text_buildCharacterWidths );
 
-	var NonRTE__NonRTE = function( KeyHandler, LineHandler, init ) {
+	var NonRTE__NonRTE = function( KeyHandler, LineHandler, Cursor, init, pubsub ) {
 		var NonRTE = function( element ) {
 			this.element = element;
 			this.keyhandler = new KeyHandler();
 			this.lineHandler = new LineHandler( this.element );
+			this.cursor = new Cursor();
 			this.focusedLine = 0;
 			init( this );
-			this.lineHandler.createLine( this.characterWidths );
+			this.cursor.positionOnLine( this.lineHandler.createLine() );
 			this.keyhandler.init();
 			this.keyhandler.registerKeyHandler( function( key ) {
 				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
@@ -677,6 +849,10 @@
 					textEl.appendData( key );
 				}
 			}.bind( this ) );
+			pubsub.subscribe( 'lineClick', function( sub, e ) {
+				this.cursor.positionOnLine( e.line );
+				this.cursor.position( e.characterOffset );
+			}.bind( this ) );
 		};
 		NonRTE.prototype.registerKey = function( key, fn ) {
 			this.keyHandler.registerKeyListener( key, fn );
@@ -689,7 +865,7 @@
 			};
 		};
 		return NonRTE;
-	}( keys_KeyHandler, lines_LineHandler, NonRTE_init_init );
+	}( keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub );
 
 	var NonRTE = function( NonRTE ) {
 		return NonRTE;

@@ -5,11 +5,13 @@
 */
 define([
 	'events/ClickHandler',
-	'coords/getOffsetFromClick'
+	'coords/getOffsetFromClick',
+	'libs/pubsub'
 
 	], function(
 		ClickHandler,
-		getOffsetFromClick
+		getOffsetFromClick,
+		pubsub
 		) {
 
 	var CreateLine = function() {
@@ -35,7 +37,15 @@ define([
 	};
 
 	CreateLine.prototype.lineClickHandle = function(e) {
-		getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
+		var message = {
+			line : this,
+			original : e,
+			offsets : {x : e.offsetX, y : e.offsetY},
+			characterOffset : getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY}) + 2
+
+		};
+		pubsub.publish('lineClick', message);
+
 	}
 	
 
