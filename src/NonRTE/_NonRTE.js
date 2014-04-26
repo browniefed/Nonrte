@@ -15,7 +15,7 @@ define([
 		this.focusedLine = 0;
 		init(this);
 
-		this.lineHandler.createLine(this.characterWidths);
+		this.lineHandler.createLine();
 
 		this.keyhandler.init();
 		this.keyhandler.registerKeyHandler(function(key) {

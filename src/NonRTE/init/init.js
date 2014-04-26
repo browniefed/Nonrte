@@ -1,15 +1,12 @@
 define([
-	'NonRTE/init/buildCharacterWidths'
+	'utils/text/buildCharacterWidths'
 	], function(
 		buildCharacterWidths
 		) {
 
+		var init = function() {
 
-		//Should implement an extend strategy here but this works for now
-
-		var init = function(obj) {
-			obj.characterWidths = buildCharacterWidths();
 		}
-
+		
 		return init;
 })

@@ -1,17 +1,17 @@
 define([
 
-	'utils/text/measureCharacterWidth'
+	'utils/text/buildCharacterWidths'
 	], function(
-		measureCharacterWidth
+		buildCharacterWidths
 	) {
 
-	var getOffsetFromClick = function(text, offset, characterWidths) {
+	var getOffsetFromClick = function(text, offset) {
 		var currentOffset = 0,
 			characterWidth = 0,
 			offsetX = 0;
 
 		text.split('').forEach(function(character) {
-			characterWidth = measureCharacterWidth(character, characterWidths);
+			characterWidth =  buildCharacterWidths.getCharacterWidth(character);
 
 			if ( (currentOffset + characterWidth) < offset.x) {
 				currentOffset += characterWidth;

@@ -12,10 +12,7 @@ define([
 		getOffsetFromClick
 		) {
 
-	var CreateLine = function(characterWidths) {
-		this.characterWidths = characterWidths;
-
-
+	var CreateLine = function() {
 		this.node = document.createElement('div');
 		this.innerLine = document.createElement('div');
 		this.innerLine.classList.add('nonrte-line-inner');
@@ -38,7 +35,7 @@ define([
 	};
 
 	CreateLine.prototype.lineClickHandle = function(e) {
-		getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY}, this.characterWidths);
+		getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
 	}
 	
 
