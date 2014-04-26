@@ -3,20 +3,25 @@ define([
 	'lines/LineHandler',
 	'cursor/Cursor',
 	'NonRTE/init/init',
-	'libs/pubsub'
+	'libs/pubsub',
+	'data/Data'
 	], function(
 		KeyHandler,
 		LineHandler,
 		Cursor,
 		init,
-		pubsub
+		pubsub,
+		Data
 		) {
 
 	var NonRTE = function(element) {
 		this.element = element;
+		
 		this.keyhandler = new KeyHandler();
 		this.lineHandler = new LineHandler(this.element);
 		this.cursor = new Cursor();
+		this.data = new Data();
+
 		this.focusedLine = 0;
 		init(this);
 
@@ -24,36 +29,41 @@ define([
 		this.cursor.positionOnLine(this.lineHandler.createLine());
 
 		this.keyhandler.init();
-		this.keyhandler.registerKeyHandler(function(key) {
+
+		pubsub.subscribe('keypress.backspace', function() {
+			//Needs to take into account the cursor position
 			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
 
-			if (key == 'backspace') {
-				if (textEl && textEl.length) {
-					textEl.deleteData(textEl.data.length - 1, 1)
-				} else if (textEl && !textEl.length) {
-					if (this.focusedLine) {
-						this.focusedLine--;
-					}
+			if (textEl && textEl.length) {
+				textEl.deleteData(textEl.data.length - 1, 1)
+			} else if (textEl && !textEl.length) {
+				if (this.focusedLine) {
+					this.focusedLine--;
 				}
-				return;
 			}
-			else if (key == 'enter') {
-				this.lineHandler.createLine();
-				this.focusedLine = this.lineHandler.getLines().length - 1;
-				return;
-			} else {
-				if (key == 'space') {
-					key = '\u00a0';
-				}
-				textEl.appendData(key);
-			}
+			
+		}.bind(this));
 
+		pubsub.subscribe('keypress.enter', function() {
+			this.lineHandler.createLine();
+			this.focusedLine = this.lineHandler.getLines().length - 1;
+		}.bind(this));
+
+		pubsub.subscribe('keypress.space', function() {
+			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+			textEl.appendData('\u00a0');
+		}.bind(this));
+
+		pubsub.subscribe('keypress.character', function(subName, key) {
+			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+			textEl.appendData(key);
 		}.bind(this));
 
 		pubsub.subscribe('lineClick', function(sub, e) {
 			this.cursor.positionOnLine(e.line);
 			this.cursor.position(e.characterOffset);
-		}.bind(this))
+		}.bind(this));
+
 	};
 
 	//CREATE MIXIN HERE
@@ -82,7 +92,7 @@ define([
 		};
 
 
-	}
+	};
 
 	return NonRTE;
 })

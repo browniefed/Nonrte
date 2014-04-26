@@ -473,116 +473,6 @@
 		return KeyboardMouseTrap;
 	}();
 
-	var keys_KeyHandler = function( Keys, keyboard ) {
-		var KeyHandler = function() {};
-		KeyHandler.prototype.init = function() {
-			this.attachGenericKeys();
-			this.keyHandlers = [];
-		};
-		KeyHandler.prototype.attachGenericKeys = function() {
-			keyboard.bind( Keys, this.emitKey.bind( this ), 'keypress' );
-			keyboard.bind( 'space', this.emitSpace.bind( this ) );
-			keyboard.bind( 'backspace', this.emitBackspace.bind( this ) );
-			keyboard.bind( 'enter', this.emitEnter.bind( this ) );
-		};
-		KeyHandler.prototype.registerKeyHandler = function( cb ) {
-			this.keyHandlers.push( cb );
-		};
-		KeyHandler.prototype.emitKey = function( e ) {
-			this.keyHandlers[ 0 ]( String.fromCharCode( e.which ) );
-		};
-		KeyHandler.prototype.emitSpace = function( e ) {
-			this.keyHandlers[ 0 ]( 'space' );
-		};
-		KeyHandler.prototype.emitBackspace = function( e ) {
-			this.keyHandlers[ 0 ]( 'backspace' );
-		};
-		KeyHandler.prototype.emitEnter = function( e ) {
-			this.keyHandlers[ 0 ]( 'enter' );
-		};
-		return KeyHandler;
-	}( keys_Keys, libs_keyboard );
-
-	var events_ClickHandler = function() {
-		var ClickHandler = function( node, fn ) {
-			node.addEventListener( 'click', fn, false );
-		};
-		return ClickHandler;
-	}();
-
-	var utils_text_buildCharacterWidths = function() {
-		var buildCharacterWidths = function() {
-			var _maxWidth = 0,
-				_charWidthArray = {};
-			var generateASCIIwidth = function( cssStyle ) {
-				var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0,
-					oldTotalWidth = 0,
-					charWidth = 0,
-					_cssStyle = cssStyle || 'font-family: arial; font-size: 12pt';
-				container = document.createDocumentFragment();
-				divWrapper = document.createElement( 'div' );
-				divWrapper.style = 'width: 6000px; visibility:hidden';
-				charWrapper = document.createElement( 'span' );
-				charWrapper.style = cssStyle;
-				testDrive = document.createElement( 'span' );
-				testDrive.appendChild( document.createTextNode( 'i' ) );
-				divWrapper.appendChild( charWrapper );
-				container.appendChild( divWrapper );
-				document.body.appendChild( container );
-				charWrapper.appendChild( document.createTextNode( 'f' ) );
-				charWrapper.appendChild( testDrive );
-				totalWidth = charWrapper.offsetWidth;
-				charWrapper.insertBefore( document.createTextNode( '\xA0' ), testDrive );
-				oldTotalWidth = totalWidth;
-				totalWidth = charWrapper.offsetWidth;
-				charWidth = totalWidth - oldTotalWidth + 0.4;
-				_charWidthArray[ '_ ' ] = charWidth;
-				for ( var i = 33; i <= 126; i++ ) {
-					character = String.fromCharCode( i );
-					charWrapper.insertBefore( document.createTextNode( '' + character + character ), testDrive );
-					oldTotalWidth = totalWidth;
-					totalWidth = charWrapper.offsetWidth;
-					charWidth = ( totalWidth - oldTotalWidth ) / 2;
-					_charWidthArray[ '_' + character ] = charWidth;
-					if ( _maxWidth < _charWidthArray[ '_' + character ] ) {
-						_maxWidth = _charWidthArray[ '_' + character ];
-					}
-				}
-				document.body.removeChild( divWrapper );
-			};
-			generateASCIIwidth();
-			var getCharacterWidth = function( character ) {
-				if ( !! _charWidthArray[ '_' + character ] ) {
-					return _charWidthArray[ '_' + character ];
-				} else {
-					_charWidthArray[ '_' + character ] = _maxWidth;
-					return _maxWidth;
-				}
-			};
-			return {
-				getCharacterWidth: getCharacterWidth
-			};
-		}();
-		return buildCharacterWidths;
-	}();
-
-	var coords_getOffsetFromClick = function( buildCharacterWidths ) {
-		var getOffsetFromClick = function( text, offset ) {
-			var currentOffset = 0,
-				characterWidth = 0,
-				offsetX = 0;
-			text.split( '' ).forEach( function( character ) {
-				characterWidth = buildCharacterWidths.getCharacterWidth( character );
-				if ( currentOffset + characterWidth < offset.x ) {
-					currentOffset += characterWidth;
-					offsetX = currentOffset + characterWidth;
-				}
-			} );
-			return offsetX;
-		};
-		return getOffsetFromClick;
-	}( utils_text_buildCharacterWidths );
-
 	/*
 Copyright (c) 2010,2011,2012,2013 Morgan Roderick http://roderick.dk
 License: MIT - http://mrgnrdrck.mit-license.org
@@ -725,6 +615,133 @@ https://github.com/mroderick/PubSubJS
 		return PubSub;
 	}();
 
+	var keys_KeyHandler = function( Keys, keyboard, pubsub ) {
+		var KeyHandler = function() {};
+		KeyHandler.prototype.init = function() {
+			this.attachGenericKeys();
+			this.keyHandlers = [];
+		};
+		KeyHandler.prototype.attachGenericKeys = function() {
+			keyboard.bind( Keys, this.emitKey.bind( this ), 'keypress' );
+			keyboard.bind( 'space', this.emitSpace.bind( this ) );
+			keyboard.bind( 'backspace', this.emitBackspace.bind( this ) );
+			keyboard.bind( 'enter', this.emitEnter.bind( this ) );
+			keyboard.bind( 'up', this.emitUp.bind( this ) );
+			keyboard.bind( 'down', this.emitDown.bind( this ) );
+			keyboard.bind( 'left', this.emitLeft.bind( this ) );
+			keyboard.bind( 'right', this.emitRight.bind( this ) );
+		};
+		KeyHandler.prototype.registerKeyHandler = function( cb ) {
+			this.keyHandlers.push( cb );
+		};
+		KeyHandler.prototype.emitKey = function( e ) {
+			pubsub.publish( 'keypress.character', String.fromCharCode( e.which ) );
+		};
+		KeyHandler.prototype.emitSpace = function( e ) {
+			pubsub.publish( 'keypress.spacebar', e );
+		};
+		KeyHandler.prototype.emitBackspace = function( e ) {
+			pubsub.publish( 'keypress.backspace', e );
+		};
+		KeyHandler.prototype.emitEnter = function( e ) {
+			pubsub.publish( 'keypress.enter', e );
+		};
+		KeyHandler.prototype.emitUp = function( e ) {
+			pubsub.publish( 'keypress.up', e );
+		};
+		KeyHandler.prototype.emitDown = function( e ) {
+			pubsub.publish( 'keypress.down', e );
+		};
+		KeyHandler.prototype.emitLeft = function( e ) {
+			pubsub.publish( 'keypress.left', e );
+		};
+		KeyHandler.prototype.emitRight = function( e ) {
+			pubsub.publish( 'keypress.right', e );
+		};
+		KeyHandler.prototype;
+		return KeyHandler;
+	}( keys_Keys, libs_keyboard, libs_pubsub );
+
+	var events_ClickHandler = function() {
+		var ClickHandler = function( node, fn ) {
+			node.addEventListener( 'click', fn, false );
+		};
+		return ClickHandler;
+	}();
+
+	var utils_text_buildCharacterWidths = function() {
+		var buildCharacterWidths = function() {
+			var _maxWidth = 0,
+				_charWidthArray = {};
+			var generateASCIIwidth = function( cssStyle ) {
+				var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0,
+					oldTotalWidth = 0,
+					charWidth = 0,
+					_cssStyle = cssStyle || 'font-family: arial; font-size: 12pt';
+				container = document.createDocumentFragment();
+				divWrapper = document.createElement( 'div' );
+				divWrapper.style = 'width: 6000px; visibility:hidden';
+				charWrapper = document.createElement( 'span' );
+				charWrapper.style = cssStyle;
+				testDrive = document.createElement( 'span' );
+				testDrive.appendChild( document.createTextNode( 'i' ) );
+				divWrapper.appendChild( charWrapper );
+				container.appendChild( divWrapper );
+				document.body.appendChild( container );
+				charWrapper.appendChild( document.createTextNode( 'f' ) );
+				charWrapper.appendChild( testDrive );
+				totalWidth = charWrapper.offsetWidth;
+				charWrapper.insertBefore( document.createTextNode( '\xA0' ), testDrive );
+				oldTotalWidth = totalWidth;
+				totalWidth = charWrapper.offsetWidth;
+				charWidth = totalWidth - oldTotalWidth + 0.4;
+				_charWidthArray[ '_ ' ] = charWidth;
+				for ( var i = 33; i <= 126; i++ ) {
+					character = String.fromCharCode( i );
+					charWrapper.insertBefore( document.createTextNode( '' + character + character ), testDrive );
+					oldTotalWidth = totalWidth;
+					totalWidth = charWrapper.offsetWidth;
+					charWidth = ( totalWidth - oldTotalWidth ) / 2;
+					_charWidthArray[ '_' + character ] = charWidth;
+					if ( _maxWidth < _charWidthArray[ '_' + character ] ) {
+						_maxWidth = _charWidthArray[ '_' + character ];
+					}
+				}
+				document.body.removeChild( divWrapper );
+			};
+			generateASCIIwidth();
+			var getCharacterWidth = function( character ) {
+				if ( !! _charWidthArray[ '_' + character ] ) {
+					return _charWidthArray[ '_' + character ];
+				} else {
+					_charWidthArray[ '_' + character ] = _maxWidth;
+					return _maxWidth;
+				}
+			};
+			return {
+				getCharacterWidth: getCharacterWidth
+			};
+		}();
+		return buildCharacterWidths;
+	}();
+
+	var coords_getOffsetFromClick = function( buildCharacterWidths ) {
+		var getOffsetFromClick = function( text, offset ) {
+			var currentOffset = 0,
+				characterWidth = 0,
+				offsetX = 0;
+			text.split( '' ).forEach( function( character ) {
+				characterWidth = buildCharacterWidths.getCharacterWidth( character );
+				if ( currentOffset + characterWidth < offset.x ) {
+					currentOffset += characterWidth;
+					offsetX = currentOffset + characterWidth;
+				}
+			} );
+			return offsetX;
+		};
+		return getOffsetFromClick;
+	}( utils_text_buildCharacterWidths );
+
 	/*
 	CreateLine
 
@@ -817,37 +834,54 @@ https://github.com/mroderick/PubSubJS
 		return init;
 	}( utils_text_buildCharacterWidths );
 
-	var NonRTE__NonRTE = function( KeyHandler, LineHandler, Cursor, init, pubsub ) {
+	/*
+	Data is the top most level of tracking data changes.
+	It will have a representation of everything in the DOM in a structure format
+	It will be queryable, and when modified will update the DOM
+	It is the heart of the app. It's like Ractive but for just RTE
+ */
+	var data_Data = function( pubsub ) {
+		var Data = function() {
+			this.lines = [];
+		};
+		Data.prototype.addCharacterToLineEnd = function( line, character ) {};
+		Data.prototype.addCharacterToPositionOnLine = function( line, position, character ) {};
+		Data.prototype.export = function() {};
+		return Data;
+	}( libs_pubsub );
+
+	var NonRTE__NonRTE = function( KeyHandler, LineHandler, Cursor, init, pubsub, Data ) {
 		var NonRTE = function( element ) {
 			this.element = element;
 			this.keyhandler = new KeyHandler();
 			this.lineHandler = new LineHandler( this.element );
 			this.cursor = new Cursor();
+			this.data = new Data();
 			this.focusedLine = 0;
 			init( this );
 			this.cursor.positionOnLine( this.lineHandler.createLine() );
 			this.keyhandler.init();
-			this.keyhandler.registerKeyHandler( function( key ) {
+			pubsub.subscribe( 'keypress.backspace', function() {
 				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
-				if ( key == 'backspace' ) {
-					if ( textEl && textEl.length ) {
-						textEl.deleteData( textEl.data.length - 1, 1 );
-					} else if ( textEl && !textEl.length ) {
-						if ( this.focusedLine ) {
-							this.focusedLine--;
-						}
+				if ( textEl && textEl.length ) {
+					textEl.deleteData( textEl.data.length - 1, 1 );
+				} else if ( textEl && !textEl.length ) {
+					if ( this.focusedLine ) {
+						this.focusedLine--;
 					}
-					return;
-				} else if ( key == 'enter' ) {
-					this.lineHandler.createLine();
-					this.focusedLine = this.lineHandler.getLines().length - 1;
-					return;
-				} else {
-					if ( key == 'space' ) {
-						key = '\xA0';
-					}
-					textEl.appendData( key );
 				}
+			}.bind( this ) );
+			pubsub.subscribe( 'keypress.enter', function() {
+				this.lineHandler.createLine();
+				this.focusedLine = this.lineHandler.getLines().length - 1;
+			}.bind( this ) );
+			pubsub.subscribe( 'keypress.space', function() {
+				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
+				textEl.appendData( '\xA0' );
+			}.bind( this ) );
+			pubsub.subscribe( 'keypress.character', function( subName, key ) {
+				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
+				textEl.appendData( key );
 			}.bind( this ) );
 			pubsub.subscribe( 'lineClick', function( sub, e ) {
 				this.cursor.positionOnLine( e.line );
@@ -865,7 +899,7 @@ https://github.com/mroderick/PubSubJS
 			};
 		};
 		return NonRTE;
-	}( keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub );
+	}( keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub, data_Data );
 
 	var NonRTE = function( NonRTE ) {
 		return NonRTE;
