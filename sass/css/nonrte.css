@@ -1,5 +1,9 @@
 /* line 1, ../sass/nonrte.scss */
-.nonrte-line-inner {
+.nonrte-line {
+  position: relative;
+}
+/* line 3, ../sass/nonrte.scss */
+.nonrte-line .nonrte-line-inner {
   position: relative;
   min-height: 20px;
 }
@@ -132,4 +136,324 @@
 /* line 49, ../sass/_cursor.scss */
 .nonrte-cursor.hidden {
   display: none;
+}
+
+/* line 2, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu {
+  float: none;
+  list-style: none;
+  padding: 0;
+}
+
+/* line 9, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li {
+  padding: 0;
+  position: relative;
+}
+
+/* line 15, ../sass/_gdcdropdown.scss */
+ul.gdc-toolbar-dropdown-menu a {
+  display: block;
+  outline: 0;
+  text-decoration: none;
+}
+
+/* line 23, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu .menuRight {
+  float: right;
+  margin-right: 0px;
+}
+
+/* line 29, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li.separator {
+  font-size: 0;
+  overflow: hidden;
+  border-left: 1px solid #F7F7F7;
+  border-right: 1px solid #BBBBBB;
+}
+
+/* line 39, ../sass/_gdcdropdown.scss */
+ul.gdc-toolbar-dropdown-menu ul {
+  position: absolute;
+  left: -9999px;
+  border-top: 0;
+  background: #FFF;
+  text-align: left;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 51, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li li {
+  float: none;
+  white-space: nowrap;
+}
+
+/* line 57, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu ul a {
+  padding: 0;
+  font-weight: normal;
+  text-align: left;
+}
+
+/* line 64, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li:hover ul, .gdc-toolbar-dropdown-menu li.onhover ul {
+  left: -3px;
+  top: auto;
+}
+
+/* line 70, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li:hover .dropToLeft, .gdc-toolbar-dropdown-menu li.onhover .dropToLeft {
+  left: auto;
+  right: -1px;
+  top: auto;
+}
+
+/* line 78, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li:hover ul ul, .gdc-toolbar-dropdown-menu li:hover ul ul ul, .gdc-toolbar-dropdown-menu li:hover ul ul ul ul,
+.gdc-toolbar-dropdown-menu li.onhover ul ul, .gdc-toolbar-dropdown-menu li.onhover ul ul ul, .gdc-toolbar-dropdown-menu li.onhover ul ul ul ul {
+  left: -9999px;
+  top: 0;
+}
+
+/* line 85, ../sass/_gdcdropdown.scss */
+.gdc-toolbar-dropdown-menu li li:hover ul, .gdc-toolbar-dropdown-menu li li li:hover ul, .gdc-toolbar-dropdown-menu li li li li:hover ul,
+.gdc-toolbar-dropdown-menu li li.onhover ul, .gdc-toolbar-dropdown-menu li li li.onhover ul, .gdc-toolbar-dropdown-menu li li li li.onhover ul {
+  left: 30px;
+}
+
+/* line 4, ../sass/_gdcheader.scss */
+.gdc-topbar {
+  width: 100%;
+  display: inline-block;
+  height: 60px;
+  position: relative;
+  padding-left: 40px;
+}
+/* line 11, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-height: 60px;
+}
+/* line 16, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-left .gdc-home {
+  padding: 30px 20px;
+  background-color: #4285F4;
+  max-width: 40px;
+  display: inline-block;
+}
+/* line 23, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right {
+  float: left;
+  clear: none;
+  margin-left: 10px;
+}
+/* line 27, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filename {
+  margin-top: 5px;
+}
+/* line 29, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filename input {
+  border: none;
+  outline: none;
+  display: inline-block;
+  color: #CCC;
+  font-style: italic;
+  font-size: 1.2em;
+}
+/* line 36, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filename input:hover {
+  background-color: #F1F1F1;
+}
+/* line 41, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filemenu {
+  font-size: .9em;
+  margin-top: 5px;
+  margin-left: -3px;
+}
+/* line 45, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filemenu .gdc-filemenulist {
+  margin: 0;
+  padding: 0;
+}
+/* line 49, ../sass/_gdcheader.scss */
+.gdc-topbar .gdc-topbar-right .gdc-filemenu .gdc-filemenulist li {
+  display: inline-block;
+  list-style: none;
+  margin-left: 5px;
+}
+
+/* line 58, ../sass/_gdcheader.scss */
+.gdc-toolbar {
+  width: 100%;
+  clear: both;
+  margin-top: -4px;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 1px 0 1px 55px;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f5f5f5), color-stop(100%, #f1f1f1));
+  background-image: -webkit-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: -moz-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: -o-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: linear-gradient(#f5f5f5, #f1f1f1);
+}
+/* line 66, ../sass/_gdcheader.scss */
+.gdc-toolbar ul {
+  margin: 0;
+  padding: 0;
+}
+/* line 70, ../sass/_gdcheader.scss */
+.gdc-toolbar li {
+  display: inline-block;
+  margin-right: 5px;
+}
+/* line 74, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-left-separator {
+  border-left: 1px solid #d9d9d9;
+}
+/* line 77, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-right-separator {
+  border-right: 1px solid #d9d9d9;
+}
+/* line 80, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-toolbar-button, .gdc-toolbar .gdc-toolbar-dropdown {
+  border-style: solid;
+  border-width: 1px;
+  outline: none;
+  color: #333;
+  cursor: pointer;
+  padding: 4px;
+  margin: 2px;
+  border-color: transparent;
+  text-align: center;
+}
+/* line 90, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-toolbar-button:hover, .gdc-toolbar .gdc-toolbar-dropdown:hover {
+  background-color: #F8F8F8;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f8f8f8), color-stop(100%, #f1f1f1));
+  background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
+  background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
+  background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
+  background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
+  border-color: #ccc;
+}
+/* line 97, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-toolbar-button.gdc-toolbar-button-pressed, .gdc-toolbar .gdc-toolbar-dropdown.gdc-toolbar-button-pressed {
+  -webkit-box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px inset;
+  -moz-box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px inset;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 1px inset;
+  background-color: #DDD;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #eeeeee), color-stop(100%, #e0e0e0));
+  background-image: -webkit-linear-gradient(top, #eeeeee, #e0e0e0);
+  background-image: -moz-linear-gradient(top, #eeeeee, #e0e0e0);
+  background-image: -o-linear-gradient(top, #eeeeee, #e0e0e0);
+  background-image: linear-gradient(top, #eeeeee, #e0e0e0);
+}
+/* line 102, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-toolbar-button select, .gdc-toolbar .gdc-toolbar-dropdown select {
+  -webkit-appearance: none;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f5f5f5), color-stop(100%, #f1f1f1));
+  background-image: -webkit-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: -moz-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: -o-linear-gradient(#f5f5f5, #f1f1f1);
+  background-image: linear-gradient(#f5f5f5, #f1f1f1);
+  border: none;
+  outline: none;
+}
+/* line 109, ../sass/_gdcheader.scss */
+.gdc-toolbar .gdc-toolbar-button {
+  width: 28px;
+  height: 28px;
+}
+
+/* line 4, ../sass/_gdcmain.scss */
+.gdc-textcontainer {
+  width: 100%;
+  background-color: #EEE;
+  display: inline-block;
+}
+
+/* line 10, ../sass/_gdcmain.scss */
+.gdc-textmain {
+  width: 800px;
+  margin: 5px auto;
+  height: 1000px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
+  box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
+}
+/* line 15, ../sass/_gdcmain.scss */
+.gdc-textmain .gdc-init-textarea {
+  display: none;
+}
+/* line 18, ../sass/_gdcmain.scss */
+.gdc-textmain > .CodeMirror {
+  width: 100%;
+  height: 1000px;
+}
+/* line 22, ../sass/_gdcmain.scss */
+.gdc-textmain .CodeMirror-linewidget > table td {
+  min-height: 32px;
+  padding: 4px;
+}
+/* line 25, ../sass/_gdcmain.scss */
+.gdc-textmain .CodeMirror-linewidget > table td .CodeMirror {
+  min-height: 40px;
+  background-color: transparent;
+  height: 40px;
+}
+
+/* line 33, ../sass/_gdcmain.scss */
+* {
+  box-sizing: border-box;
+}
+
+/* line 36, ../sass/_gdcmain.scss */
+body {
+  font-size: 16px;
+}
+
+/* line 41, ../sass/_gdcmain.scss */
+.gdc-style-bold {
+  font-weight: bold;
+}
+
+/* line 45, ../sass/_gdcmain.scss */
+.gdc-style-strikethrough {
+  text-decoration: line-through;
+}
+
+/* line 49, ../sass/_gdcmain.scss */
+.gdc-style-underline {
+  text-decoration: underline;
+}
+
+/* line 53, ../sass/_gdcmain.scss */
+.gdc-style-underline.gdc-style-strikethrough {
+  text-decoration: underline line-through;
+}
+
+/* line 57, ../sass/_gdcmain.scss */
+.gdc-style-italic {
+  font-style: italic;
+}
+
+/* line 61, ../sass/_gdcmain.scss */
+.gdc-style-ul, .gdc-style-ol {
+  text-indent: -15px;
+  padding-left: 45px;
+  position: relative;
+}
+
+/* line 67, ../sass/_gdcmain.scss */
+.gdc-table-widget {
+  width: 100px;
+  height: 100px;
+  background-color: #CCC;
 }

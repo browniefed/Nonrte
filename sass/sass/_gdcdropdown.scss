@@ -1,0 +1,87 @@
+.gdc-toolbar-dropdown-menu
+{
+    float:none;
+    list-style: none;
+    padding: 0;
+}
+
+.gdc-toolbar-dropdown-menu li
+{
+    padding: 0;
+    position: relative;
+}
+
+ul.gdc-toolbar-dropdown-menu a
+{
+    display: block;
+    outline: 0;
+    text-decoration: none;
+}
+
+        
+.gdc-toolbar-dropdown-menu .menuRight
+{
+    float: right;
+    margin-right: 0px;
+}
+        
+.gdc-toolbar-dropdown-menu li.separator
+{
+    font-size:0;
+    overflow:hidden;
+    border-left:1px solid #F7F7F7;
+    border-right:1px solid #BBBBBB;
+}
+               
+        
+        
+ul.gdc-toolbar-dropdown-menu ul
+{
+    position: absolute;
+    left: -9999px;
+    border-top: 0; 
+    background: #FFF;    
+    text-align: left;
+    list-style: none; 
+    margin: 0;  
+    padding: 0;
+}
+
+.gdc-toolbar-dropdown-menu li li
+{
+    float: none;
+    white-space:nowrap;
+}
+
+.gdc-toolbar-dropdown-menu ul a
+{
+    padding: 0;
+    font-weight: normal;
+    text-align: left;
+}
+
+.gdc-toolbar-dropdown-menu li:hover ul, .gdc-toolbar-dropdown-menu li.onhover ul
+{
+    left: -3px;
+    top: auto;
+}
+
+.gdc-toolbar-dropdown-menu li:hover .dropToLeft, .gdc-toolbar-dropdown-menu li.onhover .dropToLeft
+{
+    left: auto;
+    right: -1px;
+    top: auto;
+}
+
+.gdc-toolbar-dropdown-menu li:hover ul ul, .gdc-toolbar-dropdown-menu li:hover ul ul ul, .gdc-toolbar-dropdown-menu li:hover ul ul ul ul,
+.gdc-toolbar-dropdown-menu li.onhover ul ul, .gdc-toolbar-dropdown-menu li.onhover ul ul ul, .gdc-toolbar-dropdown-menu li.onhover ul ul ul ul
+{
+    left: -9999px;
+    top:0;
+}
+
+.gdc-toolbar-dropdown-menu li li:hover ul, .gdc-toolbar-dropdown-menu li li li:hover ul, .gdc-toolbar-dropdown-menu li li li li:hover ul,
+.gdc-toolbar-dropdown-menu li li.onhover ul, .gdc-toolbar-dropdown-menu li li li.onhover ul, .gdc-toolbar-dropdown-menu li li li li.onhover ul
+{
+    left: 30px;
+}

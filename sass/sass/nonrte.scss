@@ -1,7 +1,13 @@
-.nonrte-line-inner {
+.nonrte-line {
 	position: relative;
-	min-height: 20px;
+	.nonrte-line-inner {
+		position: relative;
+		min-height: 20px;
+	}
 }
 
 
 @import "cursor";
+@import "gdcdropdown";
+@import "gdcheader";
+@import "gdcmain";
