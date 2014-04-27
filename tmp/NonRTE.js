@@ -645,7 +645,7 @@ var utils_text_buildCharacterWidths = function () {
                     oldTotalWidth = totalWidth;
                     totalWidth = charWrapper.offsetWidth;
                     charWidth = totalWidth - oldTotalWidth + 0.4;
-                    _charWidthArray['_ '] = charWidth;
+                    _charWidthArray['_\xA0'] = charWidth;
                     for (var i = 33; i <= 126; i++) {
                         character = String.fromCharCode(i);
                         charWrapper.insertBefore(document.createTextNode('' + character + character), testDrive);
@@ -661,6 +661,7 @@ var utils_text_buildCharacterWidths = function () {
                 };
                 generateASCIIwidth();
                 var getCharacterWidth = function (character) {
+                    debugger;
                     if (!!_charWidthArray['_' + character]) {
                         return _charWidthArray['_' + character];
                     } else {

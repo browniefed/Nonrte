@@ -36,7 +36,7 @@
              oldTotalWidth = totalWidth;
              totalWidth = charWrapper.offsetWidth;
              charWidth = (totalWidth - oldTotalWidth) + 0.4; // hack: add 0.4px to every space 
-             _charWidthArray["_ "] = charWidth;
+             _charWidthArray["_\u00a0"] = charWidth;
 
              // Other ASCII chars
              for (var i = 33; i <= 126; i++) {
