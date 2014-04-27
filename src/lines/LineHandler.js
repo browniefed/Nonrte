@@ -9,7 +9,7 @@ define([
 	};
 
 	LineHandler.prototype.createLine = function() {
-		var line = new Line();
+		var line = new Line(this.lines.length);
 		this.lines.push(line);
 		this.el.appendChild(line.getNode());
 		return line;

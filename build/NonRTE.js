@@ -729,15 +729,20 @@ https://github.com/mroderick/PubSubJS
 		var getOffsetFromClick = function( text, offset ) {
 			var currentOffset = 0,
 				characterWidth = 0,
-				offsetX = 0;
-			text.split( '' ).forEach( function( character ) {
+				offsetX = 0,
+				clickedCharacter = 0;
+			text.split( '' ).forEach( function( character, iterator ) {
 				characterWidth = buildCharacterWidths.getCharacterWidth( character );
 				if ( currentOffset + characterWidth < offset.x ) {
 					currentOffset += characterWidth;
 					offsetX = currentOffset + characterWidth;
+					clickedCharacter = iterator;
 				}
 			} );
-			return offsetX;
+			return {
+				offsetX: offsetX,
+				clickedCharacter: clickedCharacter
+			};
 		};
 		return getOffsetFromClick;
 	}( utils_text_buildCharacterWidths );
@@ -748,7 +753,8 @@ https://github.com/mroderick/PubSubJS
 	Will create a new line at a specified area. If it is beyond the length of the current lines then it will be created at the end.
 */
 	var lines_Line = function( ClickHandler, getOffsetFromClick, pubsub ) {
-		var CreateLine = function() {
+		var CreateLine = function( linePosition ) {
+			this.linePosition = linePosition;
 			this.node = document.createElement( 'div' );
 			this.innerLine = document.createElement( 'div' );
 			this.innerLine.classList.add( 'nonrte-line-inner' );
@@ -765,7 +771,15 @@ https://github.com/mroderick/PubSubJS
 		CreateLine.prototype.getTextNode = function() {
 			return this.textNode;
 		};
+		CreateLine.prototype.getPosition = function() {
+			return this.linePosition;
+		};
 		CreateLine.prototype.lineClickHandle = function( e ) {
+			var offset = getOffsetFromClick( this.textNode.data, {
+				x: e.offsetX,
+				y: e.offsetY
+			} );
+			offset.offsetX += 2;
 			var message = {
 				line: this,
 				original: e,
@@ -773,10 +787,7 @@ https://github.com/mroderick/PubSubJS
 					x: e.offsetX,
 					y: e.offsetY
 				},
-				characterOffset: getOffsetFromClick( this.textNode.data, {
-					x: e.offsetX,
-					y: e.offsetY
-				} ) + 2
+				characterOffset: offset
 			};
 			pubsub.publish( 'lineClick', message );
 		};
@@ -789,7 +800,7 @@ https://github.com/mroderick/PubSubJS
 			this.lines = [];
 		};
 		LineHandler.prototype.createLine = function() {
-			var line = new Line();
+			var line = new Line( this.lines.length );
 			this.lines.push( line );
 			this.el.appendChild( line.getNode() );
 			return line;
@@ -879,38 +890,37 @@ https://github.com/mroderick/PubSubJS
 			this.keyhandler.init();
 			pubsub.subscribe( 'keypress.backspace', function() {
 				var focusLine = this.lineHandler.getLine( this.focusPosition.line ),
-					focusCharacter = 0,
 					textEl = focusLine.getTextNode();
-				if ( textEl && textEl.length ) {
-					textEl.deleteData( textEl.data.length - 1, 1 );
-					this.focusPosition.character = focusCharacter = textEl.data.length;
-				} else if ( textEl && !textEl.length ) {
+				if ( textEl && textEl.length && this.focusPosition.character - 1 >= 0 ) {
+					this.focusPosition.character--;
+					textEl.deleteData( this.focusPosition.character, 1 );
+				} else if ( textEl && this.focusPosition.line - 1 >= 0 ) {
 					if ( this.focusPosition.line ) {
 						this.focusPosition.line--;
 					}
 					focusLine = this.lineHandler.getLine( this.focusPosition.line );
-					this.cursor.positionOnLine( focusLine );
-					this.focusPosition.character = focusCharacter = focusLine.getTextNode().data.length;
+					this.focusPosition.character = focusLine.getTextNode().data.length;
 				}
-				this.cursor.moveToCharacterPosition( focusLine, focusCharacter );
+				this.cursor.positionOnLine( focusLine, this.focusPosition.character );
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.enter', function() {
 				this.cursor.positionOnLine( this.lineHandler.createLine(), 0 );
+				this.focusPosition.character = 0;
 				this.focusPosition.line = this.lineHandler.getLines().length - 1;
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.space', function() {
-				var textEl = this.lineHandler.getLine( this.focusPosition.line ).getTextNode();
-				textEl.appendData( '\xA0' );
+				pubsub.publish( 'keypress.character', '\xA0' );
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.character', function( subName, key ) {
 				var textEl = this.lineHandler.getLine( this.focusPosition.line ).getTextNode();
-				textEl.appendData( key );
+				textEl.insertData( this.focusPosition.character, key );
 				this.focusPosition.character++;
 				this.cursor.moveToCharacterPosition( this.lineHandler.getLine( this.focusPosition.line ), this.focusPosition.character );
 			}.bind( this ) );
 			pubsub.subscribe( 'lineClick', function( sub, e ) {
-				this.cursor.positionOnLine( e.line );
-				this.cursor.position( e.characterOffset );
+				this.focusPosition.character = e.characterOffset.clickedCharacter;
+				this.focusPosition.line = e.line.getPosition();
+				this.cursor.positionOnLine( e.line, this.focusPosition.character );
 			}.bind( this ) );
 		};
 		NonRTE.prototype.registerKey = function( key, fn ) {

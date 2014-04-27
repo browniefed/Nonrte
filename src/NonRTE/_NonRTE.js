@@ -37,50 +37,47 @@ define([
 		pubsub.subscribe('keypress.backspace', function() {
 			//Needs to take into account the cursor position
 			var focusLine = this.lineHandler.getLine(this.focusPosition.line),
-				focusCharacter = 0,
 				textEl = focusLine.getTextNode();
 
-			if (textEl && textEl.length) {
-				textEl.deleteData(textEl.data.length - 1, 1);
-				this.focusPosition.character = focusCharacter = textEl.data.length;
+			if (textEl && textEl.length && (this.focusPosition.character - 1 >= 0)) {
+				this.focusPosition.character--
+				textEl.deleteData(this.focusPosition.character, 1);
 
-			} else if (textEl && !textEl.length) {
+				//Make greaterThanZero a func
+			} else if (textEl && (this.focusPosition.line - 1 >= 0)) {
 				if (this.focusPosition.line) {
 					this.focusPosition.line--;
 				}
-
 				focusLine = this.lineHandler.getLine(this.focusPosition.line);
-				this.cursor.positionOnLine(focusLine);
-
-				this.focusPosition.character = focusCharacter = focusLine.getTextNode().data.length;
+				this.focusPosition.character = focusLine.getTextNode().data.length;
 			}
 
-			this.cursor.moveToCharacterPosition(focusLine, focusCharacter);
+			this.cursor.positionOnLine(focusLine, this.focusPosition.character);
 
 		}.bind(this));
 
 		pubsub.subscribe('keypress.enter', function() {
 			this.cursor.positionOnLine(this.lineHandler.createLine(), 0);
-
+			this.focusPosition.character = 0;
 			this.focusPosition.line = this.lineHandler.getLines().length - 1;
 
 		}.bind(this));
 
 		pubsub.subscribe('keypress.space', function() {
-			var textEl = this.lineHandler.getLine(this.focusPosition.line).getTextNode();
-			textEl.appendData('\u00a0');
+			pubsub.publish('keypress.character', '\u00a0')
 		}.bind(this));
 
 		pubsub.subscribe('keypress.character', function(subName, key) {
 			var textEl = this.lineHandler.getLine(this.focusPosition.line).getTextNode();
-			textEl.appendData(key);
+			textEl.insertData(this.focusPosition.character, key);
 			this.focusPosition.character++;
 			this.cursor.moveToCharacterPosition(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
 		}.bind(this));
 
 		pubsub.subscribe('lineClick', function(sub, e) {
-			this.cursor.positionOnLine(e.line);
-			this.cursor.position(e.characterOffset);
+			this.focusPosition.character = e.characterOffset.clickedCharacter;
+			this.focusPosition.line = e.line.getPosition();
+			this.cursor.positionOnLine(e.line, this.focusPosition.character);
 		}.bind(this));
 
 	};

@@ -14,7 +14,8 @@ define([
 		pubsub
 		) {
 
-	var CreateLine = function() {
+	var CreateLine = function(linePosition) {
+		this.linePosition = linePosition;
 		this.node = document.createElement('div');
 		this.innerLine = document.createElement('div');
 		this.innerLine.classList.add('nonrte-line-inner');
@@ -35,13 +36,19 @@ define([
 	CreateLine.prototype.getTextNode = function() {
 		return this.textNode;
 	};
+	//THIS IS REALLY BAD AND PROBABLY SHOULDNT BE IN EXISTENCE
+	CreateLine.prototype.getPosition = function() {
+		return this.linePosition;
+	};
 
 	CreateLine.prototype.lineClickHandle = function(e) {
+		var offset = getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
+		offset.offsetX += 2;
 		var message = {
 			line : this,
 			original : e,
 			offsets : {x : e.offsetX, y : e.offsetY},
-			characterOffset : getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY}) + 2
+			characterOffset : offset
 
 		};
 		pubsub.publish('lineClick', message);
