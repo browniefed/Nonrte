@@ -716,6 +716,9 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub) {
         CreateLine.prototype.getTextNode = function () {
             return this.textNode;
         };
+        CreateLine.prototype.dataLength = function () {
+            return this.textNode.data.length;
+        };
         CreateLine.prototype.getPosition = function () {
             return this.linePosition;
         };
@@ -755,6 +758,9 @@ var lines_LineHandler = function (Line) {
         };
         LineHandler.prototype.getLines = function () {
             return this.lines;
+        };
+        LineHandler.prototype.linesLength = function () {
+            return this.lines.length;
         };
         return LineHandler;
     }(lines_Line);
@@ -869,6 +875,52 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
                 this.focusPosition.character = e.characterOffset.clickedCharacter;
                 this.focusPosition.line = e.line.getPosition();
                 this.cursor.positionOnLine(e.line, this.focusPosition.character);
+            }.bind(this));
+            pubsub.subscribe('keypress.left', function (subName, e) {
+                if (this.focusPosition.character == 0 && this.focusPosition.line - 1 >= 0) {
+                    this.focusPosition.line--;
+                    this.focusPosition.character = this.lineHandler.getLine(this.focusPosition.line).dataLength();
+                } else {
+                    this.focusPosition.character--;
+                }
+                pubsub.publish('updateCursorPosition');
+            }.bind(this));
+            pubsub.subscribe('keypress.right', function (subName, e) {
+                var focusLine = this.lineHandler.getLine(this.focusPosition.line), focusLength = focusLine.dataLength();
+                if (this.focusPosition.character + 1 > focusLine.dataLength() && this.lineHandler.linesLength() < this.focusPosition.line + 1) {
+                    this.focusPosition.line++;
+                    this.focusPosition.character = 0;
+                } else {
+                    this.focusPosition.character++;
+                }
+                pubsub.publish('updateCursorPosition');
+            }.bind(this));
+            pubsub.subscribe('keypress.up', function (subName, e) {
+                var focusLine = this.lineHandler.getLine(this.focusPosition.line), focusLength = focusLine.dataLength(), prevLine;
+                if (this.focusPosition.line - 1 >= 0) {
+                    this.focusPosition.line--;
+                    prevLine = this.lineHandler.getLine(this.focusPosition.line);
+                    if (this.focusPosition.character >= prevLine.dataLength()) {
+                        this.focusPosition.character = prevLine.dataLength();
+                    }
+                }
+                pubsub.publish('updateCursorPosition');
+            }.bind(this));
+            pubsub.subscribe('keypress.down', function (subName, e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var focusLine = this.lineHandler.getLine(this.focusPosition.line), focusLength = focusLine.dataLength(), nextLine;
+                if (this.focusPosition.line + 1 < this.lineHandler.linesLength()) {
+                    this.focusPosition.line++;
+                    nextLine = this.lineHandler.getLine(this.focusPosition.line);
+                    if (this.focusPosition.character >= nextLine.dataLength()) {
+                        this.focusPosition.character = nextLine.dataLength();
+                    }
+                }
+                pubsub.publish('updateCursorPosition');
+            }.bind(this));
+            pubsub.subscribe('updateCursorPosition', function () {
+                this.cursor.positionOnLine(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
             }.bind(this));
         };
         NonRTE.prototype.registerKey = function (key, fn) {

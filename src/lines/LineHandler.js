@@ -23,5 +23,9 @@ define([
 		return this.lines;
 	};
 
+	LineHandler.prototype.linesLength = function() {
+		return this.lines.length;
+	};
+
 	return LineHandler;
 });

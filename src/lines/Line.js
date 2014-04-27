@@ -36,6 +36,11 @@ define([
 	CreateLine.prototype.getTextNode = function() {
 		return this.textNode;
 	};
+
+	CreateLine.prototype.dataLength = function() {
+		return this.textNode.data.length;
+	}
+
 	//THIS IS REALLY BAD AND PROBABLY SHOULDNT BE IN EXISTENCE
 	CreateLine.prototype.getPosition = function() {
 		return this.linePosition;
