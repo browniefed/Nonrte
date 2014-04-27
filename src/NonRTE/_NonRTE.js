@@ -63,7 +63,8 @@ define([
 
 		}.bind(this));
 
-		pubsub.subscribe('keypress.space', function() {
+		pubsub.subscribe('keypress.spacebar', function(subName, e) {
+			e.preventDefault();
 			pubsub.publish('keypress.character', '\u00a0')
 		}.bind(this));
 

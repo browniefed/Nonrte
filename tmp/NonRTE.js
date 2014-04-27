@@ -855,7 +855,8 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
                 this.focusPosition.character = 0;
                 this.focusPosition.line = this.lineHandler.getLines().length - 1;
             }.bind(this));
-            pubsub.subscribe('keypress.space', function () {
+            pubsub.subscribe('keypress.spacebar', function (subName, e) {
+                e.preventDefault();
                 pubsub.publish('keypress.character', '\xA0');
             }.bind(this));
             pubsub.subscribe('keypress.character', function (subName, key) {
