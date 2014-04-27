@@ -1,3 +1,8 @@
-Nonrte
+NonRTE
 ======
-An RTE that doesn't use contenteditable
+An RTE that doesn't use contenteditable. The main focus of this project is to bring google doc style RTE to the developer. Other contenteditable based RTEs are great but they do not act like word, and are inconsistent in various browsers. Most clients in the enterprise world want an RTE that acts JUST like word. They love it, they love google docs (generally) but the Documents that people think of building in word don't necessarily translate well to the web. Yeah I know they're just HTML/CSS in word but I'm talking about concepts of simple indenting, nested lists, etc. They are also lack an easy and pluggable structure. This makes it a nightmare to get RTE up and running and your clients will only be unhappy with the experience. 
+
+Not being contenteditable is one way NonRTE is different but it is also different in that we steal some ideas from RactiveJS. NonRTE controls everything for you but you should never have to manipulate the DOM in any way, not even when writing plugins. All you have to do is operate on the data, pushing onto arrays, splicing stuff out, etc. NonRTE will handle it and provide hooks every step of the way so you can craft plugins easily. This also makes exporting to different formats a breeze since you can develop a plugin that operates on a data structure. That also means you import to a given format and you don't have to worry about the DOM. Things will just work ( at least that's the idea).
+
+This is hardly ready for production but if you feel like contributing I'll gladly accept pull requests.
+NonRTE is just for fun and is not under any serious or heavy development but it is one of my main side projects so hopefully it'll get most of my love.
