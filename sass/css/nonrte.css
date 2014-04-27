@@ -387,71 +387,72 @@ ul.gdc-toolbar-dropdown-menu ul {
   -webkit-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
   -moz-box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
   box-shadow: rgba(0, 0, 0, 0.25) 2px 2px 10px;
+  background-color: #FFF;
 }
-/* line 15, ../sass/_gdcmain.scss */
+/* line 17, ../sass/_gdcmain.scss */
 .gdc-textmain .gdc-init-textarea {
   display: none;
 }
-/* line 18, ../sass/_gdcmain.scss */
+/* line 20, ../sass/_gdcmain.scss */
 .gdc-textmain > .CodeMirror {
   width: 100%;
   height: 1000px;
 }
-/* line 22, ../sass/_gdcmain.scss */
+/* line 24, ../sass/_gdcmain.scss */
 .gdc-textmain .CodeMirror-linewidget > table td {
   min-height: 32px;
   padding: 4px;
 }
-/* line 25, ../sass/_gdcmain.scss */
+/* line 27, ../sass/_gdcmain.scss */
 .gdc-textmain .CodeMirror-linewidget > table td .CodeMirror {
   min-height: 40px;
   background-color: transparent;
   height: 40px;
 }
 
-/* line 33, ../sass/_gdcmain.scss */
+/* line 35, ../sass/_gdcmain.scss */
 * {
   box-sizing: border-box;
 }
 
-/* line 36, ../sass/_gdcmain.scss */
+/* line 38, ../sass/_gdcmain.scss */
 body {
   font-size: 16px;
 }
 
-/* line 41, ../sass/_gdcmain.scss */
+/* line 43, ../sass/_gdcmain.scss */
 .gdc-style-bold {
   font-weight: bold;
 }
 
-/* line 45, ../sass/_gdcmain.scss */
+/* line 47, ../sass/_gdcmain.scss */
 .gdc-style-strikethrough {
   text-decoration: line-through;
 }
 
-/* line 49, ../sass/_gdcmain.scss */
+/* line 51, ../sass/_gdcmain.scss */
 .gdc-style-underline {
   text-decoration: underline;
 }
 
-/* line 53, ../sass/_gdcmain.scss */
+/* line 55, ../sass/_gdcmain.scss */
 .gdc-style-underline.gdc-style-strikethrough {
   text-decoration: underline line-through;
 }
 
-/* line 57, ../sass/_gdcmain.scss */
+/* line 59, ../sass/_gdcmain.scss */
 .gdc-style-italic {
   font-style: italic;
 }
 
-/* line 61, ../sass/_gdcmain.scss */
+/* line 63, ../sass/_gdcmain.scss */
 .gdc-style-ul, .gdc-style-ol {
   text-indent: -15px;
   padding-left: 45px;
   position: relative;
 }
 
-/* line 67, ../sass/_gdcmain.scss */
+/* line 69, ../sass/_gdcmain.scss */
 .gdc-table-widget {
   width: 100px;
   height: 100px;

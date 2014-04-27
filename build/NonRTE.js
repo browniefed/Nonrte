@@ -803,7 +803,7 @@ https://github.com/mroderick/PubSubJS
 		return LineHandler;
 	}( lines_Line );
 
-	var cursor_Cursor = function() {
+	var cursor_Cursor = function( buildCharacterWidths ) {
 		var cursorClasses = {
 			standard: 'nonrte-cursor',
 			focus: 'blink',
@@ -814,11 +814,24 @@ https://github.com/mroderick/PubSubJS
 			this.cursorNode.classList.add( cursorClasses.standard );
 			this.cursorNode.classList.add( cursorClasses.focus );
 		};
-		Cursor.prototype.positionOnLine = function( line ) {
+		Cursor.prototype.positionOnLine = function( line, characterPosition ) {
 			line.getNode().appendChild( this.cursorNode );
+			if ( typeof characterPosition === 'number' ) {
+				this.moveToCharacterPosition( line, characterPosition );
+			}
 		};
 		Cursor.prototype.position = function( x ) {
 			this.cursorNode.style.left = x + 'px';
+		};
+		Cursor.prototype.moveToCharacterPosition = function( line, characterPosition ) {
+			var text = line.getTextNode().data.split( '' ),
+				offset = 0;
+			text.forEach( function( character, iterator ) {
+				if ( iterator < characterPosition ) {
+					offset += buildCharacterWidths.getCharacterWidth( character );
+				}
+			} );
+			this.position( offset );
 		};
 		Cursor.prototype.hide = function() {
 			this.cursorNode.classList.add( 'hidden' );
@@ -827,7 +840,7 @@ https://github.com/mroderick/PubSubJS
 			this.cursorNode.classList.remove( 'hidden' );
 		};
 		return Cursor;
-	}();
+	}( utils_text_buildCharacterWidths );
 
 	var NonRTE_init_init = function( buildCharacterWidths ) {
 		var init = function() {};
@@ -857,31 +870,43 @@ https://github.com/mroderick/PubSubJS
 			this.lineHandler = new LineHandler( this.element );
 			this.cursor = new Cursor();
 			this.data = new Data();
-			this.focusedLine = 0;
+			this.focusPosition = {
+				line: 0,
+				character: 0
+			};
 			init( this );
 			this.cursor.positionOnLine( this.lineHandler.createLine() );
 			this.keyhandler.init();
 			pubsub.subscribe( 'keypress.backspace', function() {
-				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
+				var focusLine = this.lineHandler.getLine( this.focusPosition.line ),
+					focusCharacter = 0,
+					textEl = focusLine.getTextNode();
 				if ( textEl && textEl.length ) {
 					textEl.deleteData( textEl.data.length - 1, 1 );
+					this.focusPosition.character = focusCharacter = textEl.data.length;
 				} else if ( textEl && !textEl.length ) {
-					if ( this.focusedLine ) {
-						this.focusedLine--;
+					if ( this.focusPosition.line ) {
+						this.focusPosition.line--;
 					}
+					focusLine = this.lineHandler.getLine( this.focusPosition.line );
+					this.cursor.positionOnLine( focusLine );
+					this.focusPosition.character = focusCharacter = focusLine.getTextNode().data.length;
 				}
+				this.cursor.moveToCharacterPosition( focusLine, focusCharacter );
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.enter', function() {
-				this.lineHandler.createLine();
-				this.focusedLine = this.lineHandler.getLines().length - 1;
+				this.cursor.positionOnLine( this.lineHandler.createLine(), 0 );
+				this.focusPosition.line = this.lineHandler.getLines().length - 1;
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.space', function() {
-				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
+				var textEl = this.lineHandler.getLine( this.focusPosition.line ).getTextNode();
 				textEl.appendData( '\xA0' );
 			}.bind( this ) );
 			pubsub.subscribe( 'keypress.character', function( subName, key ) {
-				var textEl = this.lineHandler.getLine( this.focusedLine ).getTextNode();
+				var textEl = this.lineHandler.getLine( this.focusPosition.line ).getTextNode();
 				textEl.appendData( key );
+				this.focusPosition.character++;
+				this.cursor.moveToCharacterPosition( this.lineHandler.getLine( this.focusPosition.line ), this.focusPosition.character );
 			}.bind( this ) );
 			pubsub.subscribe( 'lineClick', function( sub, e ) {
 				this.cursor.positionOnLine( e.line );

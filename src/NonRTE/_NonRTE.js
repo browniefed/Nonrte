@@ -22,7 +22,11 @@ define([
 		this.cursor = new Cursor();
 		this.data = new Data();
 
-		this.focusedLine = 0;
+		this.focusPosition = {
+			line: 0,
+			character: 0
+		};
+
 		init(this);
 
 		//Create the first line and position the cursor on it
@@ -32,31 +36,46 @@ define([
 
 		pubsub.subscribe('keypress.backspace', function() {
 			//Needs to take into account the cursor position
-			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+			var focusLine = this.lineHandler.getLine(this.focusPosition.line),
+				focusCharacter = 0,
+				textEl = focusLine.getTextNode();
 
 			if (textEl && textEl.length) {
-				textEl.deleteData(textEl.data.length - 1, 1)
+				textEl.deleteData(textEl.data.length - 1, 1);
+				this.focusPosition.character = focusCharacter = textEl.data.length;
+
 			} else if (textEl && !textEl.length) {
-				if (this.focusedLine) {
-					this.focusedLine--;
+				if (this.focusPosition.line) {
+					this.focusPosition.line--;
 				}
+
+				focusLine = this.lineHandler.getLine(this.focusPosition.line);
+				this.cursor.positionOnLine(focusLine);
+
+				this.focusPosition.character = focusCharacter = focusLine.getTextNode().data.length;
 			}
-			
+
+			this.cursor.moveToCharacterPosition(focusLine, focusCharacter);
+
 		}.bind(this));
 
 		pubsub.subscribe('keypress.enter', function() {
-			this.lineHandler.createLine();
-			this.focusedLine = this.lineHandler.getLines().length - 1;
+			this.cursor.positionOnLine(this.lineHandler.createLine(), 0);
+
+			this.focusPosition.line = this.lineHandler.getLines().length - 1;
+
 		}.bind(this));
 
 		pubsub.subscribe('keypress.space', function() {
-			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+			var textEl = this.lineHandler.getLine(this.focusPosition.line).getTextNode();
 			textEl.appendData('\u00a0');
 		}.bind(this));
 
 		pubsub.subscribe('keypress.character', function(subName, key) {
-			var textEl = this.lineHandler.getLine(this.focusedLine).getTextNode();
+			var textEl = this.lineHandler.getLine(this.focusPosition.line).getTextNode();
 			textEl.appendData(key);
+			this.focusPosition.character++;
+			this.cursor.moveToCharacterPosition(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
 		}.bind(this));
 
 		pubsub.subscribe('lineClick', function(sub, e) {
