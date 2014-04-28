@@ -711,7 +711,6 @@ https://github.com/mroderick/PubSubJS
 			};
 			generateASCIIwidth();
 			var getCharacterWidth = function( character ) {
-				debugger;
 				if ( !! _charWidthArray[ '_' + character ] ) {
 					return _charWidthArray[ '_' + character ];
 				} else {
@@ -777,6 +776,9 @@ https://github.com/mroderick/PubSubJS
 		};
 		CreateLine.prototype.getPosition = function() {
 			return this.linePosition;
+		};
+		CreateLine.prototype.getLineHeight = function( characterPosition ) {
+			return this.innerLine.clientHeight;
 		};
 		CreateLine.prototype.lineClickHandle = function( e ) {
 			var offset = getOffsetFromClick( this.textNode.data, {
@@ -851,6 +853,9 @@ https://github.com/mroderick/PubSubJS
 			} );
 			this.position( offset );
 		};
+		Cursor.prototype.setHeight = function( height ) {
+			this.cursorNode.style.height = height + 'px';
+		};
 		Cursor.prototype.hide = function() {
 			this.cursorNode.classList.add( 'hidden' );
 		};
@@ -895,6 +900,7 @@ https://github.com/mroderick/PubSubJS
 			init( this );
 			this.cursor.positionOnLine( this.lineHandler.createLine() );
 			this.keyhandler.init();
+			this.cursor.setHeight( this.lineHandler.getLine( this.focusPosition.line ).getLineHeight( this.focusPosition.character ) );
 			pubsub.subscribe( 'keypress.backspace', function() {
 				var focusLine = this.lineHandler.getLine( this.focusPosition.line ),
 					textEl = focusLine.getTextNode();
@@ -934,7 +940,7 @@ https://github.com/mroderick/PubSubJS
 				if ( this.focusPosition.character == 0 && this.focusPosition.line - 1 >= 0 ) {
 					this.focusPosition.line--;
 					this.focusPosition.character = this.lineHandler.getLine( this.focusPosition.line ).dataLength();
-				} else {
+				} else if ( this.focusPosition.character != 0 ) {
 					this.focusPosition.character--;
 				}
 				pubsub.publish( 'updateCursorPosition' );
@@ -945,7 +951,7 @@ https://github.com/mroderick/PubSubJS
 				if ( this.focusPosition.character + 1 > focusLine.dataLength() && this.lineHandler.linesLength() < this.focusPosition.line + 1 ) {
 					this.focusPosition.line++;
 					this.focusPosition.character = 0;
-				} else {
+				} else if ( this.focusPosition.character + 1 <= focusLine.dataLength() ) {
 					this.focusPosition.character++;
 				}
 				pubsub.publish( 'updateCursorPosition' );

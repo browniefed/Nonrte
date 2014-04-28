@@ -41,6 +41,10 @@ define([
 		this.position(offset);
 	}
 
+	Cursor.prototype.setHeight = function(height) {
+		this.cursorNode.style.height = height + 'px';
+	}
+
 	Cursor.prototype.hide = function() {
 		this.cursorNode.classList.add('hidden');
 	}

@@ -46,6 +46,11 @@ define([
 		return this.linePosition;
 	};
 
+	CreateLine.prototype.getLineHeight = function(characterPosition) {
+		//In the future we need to adjust based upon what character the cursor is next to
+		return this.innerLine.clientHeight;
+	}
+
 	CreateLine.prototype.lineClickHandle = function(e) {
 		var offset = getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
 		offset.offsetX += 2;

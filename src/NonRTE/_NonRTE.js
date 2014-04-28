@@ -20,6 +20,8 @@ define([
 		this.keyhandler = new KeyHandler();
 		this.lineHandler = new LineHandler(this.element);
 		this.cursor = new Cursor();
+
+
 		this.data = new Data();
 
 		this.focusPosition = {
@@ -33,6 +35,9 @@ define([
 		this.cursor.positionOnLine(this.lineHandler.createLine());
 
 		this.keyhandler.init();
+
+		this.cursor.setHeight(this.lineHandler.getLine(this.focusPosition.line).getLineHeight(this.focusPosition.character));
+
 
 		pubsub.subscribe('keypress.backspace', function() {
 			//Needs to take into account the cursor position
@@ -85,7 +90,7 @@ define([
 			if (this.focusPosition.character == 0 && this.focusPosition.line - 1 >= 0) {
 				this.focusPosition.line--;
 				this.focusPosition.character = this.lineHandler.getLine(this.focusPosition.line).dataLength();
-			} else {
+			} else if (this.focusPosition.character != 0) {
 				this.focusPosition.character--;
 			}
 
@@ -99,7 +104,7 @@ define([
 			if ( (this.focusPosition.character + 1 > focusLine.dataLength()) && (this.lineHandler.linesLength() < this.focusPosition.line + 1) ) {
 				this.focusPosition.line++;
 				this.focusPosition.character = 0;
-			} else {
+			} else if (this.focusPosition.character + 1 <= focusLine.dataLength()) {
 				this.focusPosition.character++;
 			}
 
