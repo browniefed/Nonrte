@@ -39,6 +39,14 @@ define([
 
 	CreateLine.prototype.dataLength = function() {
 		return this.textNode.data.length;
+	};
+
+	CreateLine.prototype.setLineData = function(textData) {
+		this.textNode.data = textData;
+	};
+
+	CreateLine.prototype.getLineData = function() {
+		return this.textNode.data;
 	}
 
 	//THIS IS REALLY BAD AND PROBABLY SHOULDNT BE IN EXISTENCE

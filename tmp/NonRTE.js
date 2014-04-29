@@ -719,6 +719,12 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub) {
         CreateLine.prototype.dataLength = function () {
             return this.textNode.data.length;
         };
+        CreateLine.prototype.setLineData = function (textData) {
+            this.textNode.data = textData;
+        };
+        CreateLine.prototype.getLineData = function () {
+            return this.textNode.data;
+        };
         CreateLine.prototype.getPosition = function () {
             return this.linePosition;
         };
@@ -750,10 +756,19 @@ var lines_LineHandler = function (Line) {
             this.el = el;
             this.lines = [];
         };
-        LineHandler.prototype.createLine = function () {
+        LineHandler.prototype.createLine = function (position) {
+            var isFirstLine = this.lines.length, addAsLastLine = this.lines.length === position;
             var line = new Line(this.lines.length);
-            this.lines.push(line);
-            this.el.appendChild(line.getNode());
+            if (position) {
+                this.lines.splice(position, 0, line);
+            } else {
+                this.lines.push(line);
+            }
+            if (isFirstLine === 0 || addAsLastLine) {
+                this.el.appendChild(line.getNode());
+            } else {
+                this.el.insertBefore(line.getNode(), this.getLine(position + 1).getNode());
+            }
             return line;
         };
         LineHandler.prototype.getLine = function (lineIndex) {
@@ -864,9 +879,14 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
                 this.cursor.positionOnLine(focusLine, this.focusPosition.character);
             }.bind(this));
             pubsub.subscribe('keypress.enter', function () {
-                this.cursor.positionOnLine(this.lineHandler.createLine(), 0);
+                var line = this.lineHandler.createLine(this.focusPosition.line + 1), focusLine = this.lineHandler.getLine(this.focusPosition.line), textData = focusLine.getLineData(), moveData = textData.substring(this.focusPosition.character, textData.length), oldData = textData.substring(0, this.focusPosition.character);
+                if (moveData) {
+                    line.setLineData(moveData);
+                    focusLine.setLineData(oldData);
+                }
+                this.focusPosition.line += 1;
                 this.focusPosition.character = 0;
-                this.focusPosition.line = this.lineHandler.getLines().length - 1;
+                this.cursor.positionOnLine(line, this.focusPosition.character);
             }.bind(this));
             pubsub.subscribe('keypress.spacebar', function (subName, e) {
                 e.preventDefault();

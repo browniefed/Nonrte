@@ -62,9 +62,23 @@ define([
 		}.bind(this));
 
 		pubsub.subscribe('keypress.enter', function() {
-			this.cursor.positionOnLine(this.lineHandler.createLine(), 0);
-			this.focusPosition.character = 0;
-			this.focusPosition.line = this.lineHandler.getLines().length - 1;
+
+			var line = this.lineHandler.createLine(this.focusPosition.line + 1),
+				focusLine = this.lineHandler.getLine(this.focusPosition.line),
+				textData = focusLine.getLineData(),
+				moveData = textData.substring(this.focusPosition.character, textData.length),
+				oldData = textData.substring(0, this.focusPosition.character);
+
+				if (moveData) {
+					line.setLineData(moveData);
+					focusLine.setLineData(oldData);
+				}
+				
+
+				this.focusPosition.line += 1;
+				this.focusPosition.character = 0;
+
+			this.cursor.positionOnLine(line, this.focusPosition.character);
 
 		}.bind(this));
 
