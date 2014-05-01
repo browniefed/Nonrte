@@ -11,9 +11,13 @@ define([
 	) {
 
 
-	var Data = function() {
-		this.lines = []; //LineHandler here maybe
+	var Data = function(lineHandler) {
+		this.lineHandler = lineHandler; //LineHandler here maybe
 	};
+
+	Data.prototype.set = function() {
+
+	}
 
 	Data.prototype.addCharacterToLineEnd = function(line, character) {
 
