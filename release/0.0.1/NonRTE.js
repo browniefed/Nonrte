@@ -893,22 +893,54 @@ https://github.com/mroderick/PubSubJS
 	It is the heart of the app. It's like Ractive but for just RTE
  */
 	var data_Data = function( pubsub ) {
-		var Data = function() {
-			this.lines = [];
+		var Data = function( lineHandler ) {
+			this.lineHandler = lineHandler;
 		};
+		Data.prototype.set = function() {};
 		Data.prototype.addCharacterToLineEnd = function( line, character ) {};
 		Data.prototype.addCharacterToPositionOnLine = function( line, position, character ) {};
 		Data.prototype.export = function() {};
 		return Data;
 	}( libs_pubsub );
 
-	var NonRTE__NonRTE = function( KeyHandler, LineHandler, Cursor, init, pubsub, Data ) {
+	var events_SelectHandler = function() {
+		var wrapEvent = function( fn ) {
+			return fn;
+		};
+		var SelectionHandler = function( node, fn ) {
+			this.fn = fn;
+			this.node = node;
+			this.fnMouseMove = wrapEvent( this.handleMouseMove.bind( this ) );
+			this.fnMouseEnd = wrapEvent( this.handleMouseUp.bind( this ) );
+			node.addEventListener( 'mousedown', this.handleMouseDown.bind( this ), false );
+		};
+		SelectionHandler.prototype.handleMouseDown = function( e ) {
+			e.preventDefault();
+			this.fn( e, 'selectionstart' );
+			this.node.addEventListener( 'mousemove', this.fnMouseMove, false );
+			this.node.addEventListener( 'mouseup', this.fnMouseEnd, false );
+		};
+		SelectionHandler.prototype.handleMouseUp = function( e ) {
+			e.preventDefault();
+			this.fn( e, 'selectionend' );
+			this.node.removeEventListener( 'mousemove', this.fnMouseMove, false );
+			this.node.removeEventListener( 'mouseup', this.fnMouseEnd, false );
+		};
+		SelectionHandler.prototype.handleMouseMove = function( e ) {
+			e.preventDefault();
+			this.fn( e, 'selectionchange' );
+		};
+		return SelectionHandler;
+	}();
+
+	var NonRTE__NonRTE = function( KeyHandler, LineHandler, Cursor, init, pubsub, Data, SelectHandler ) {
 		var NonRTE = function( element ) {
 			this.element = element;
 			this.keyhandler = new KeyHandler();
 			this.lineHandler = new LineHandler( this.element );
 			this.cursor = new Cursor();
-			this.data = new Data();
+			this.selectHandler = new SelectHandler( this.element, this.handleSelect );
+			this.data = new Data( this.lineHandler );
 			this.focusPosition = {
 				line: 0,
 				character: 0
@@ -1012,6 +1044,12 @@ https://github.com/mroderick/PubSubJS
 			pubsub.subscribe( 'updateCursorPosition', function() {
 				this.cursor.positionOnLine( this.lineHandler.getLine( this.focusPosition.line ), this.focusPosition.character );
 			}.bind( this ) );
+			pubsub.subscribe( 'selection', function( subName, e ) {
+				console.log( e );
+			}.bind( this ) );
+		};
+		NonRTE.prototype.handleSelect = function() {
+			console.log( arguments );
 		};
 		NonRTE.prototype.registerKey = function( key, fn ) {
 			this.keyHandler.registerKeyListener( key, fn );
@@ -1024,7 +1062,7 @@ https://github.com/mroderick/PubSubJS
 			};
 		};
 		return NonRTE;
-	}( keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub, data_Data );
+	}( keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub, data_Data, events_SelectHandler );
 
 	var NonRTE = function( NonRTE ) {
 		return NonRTE;

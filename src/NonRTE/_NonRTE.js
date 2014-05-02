@@ -4,14 +4,16 @@ define([
 	'cursor/Cursor',
 	'NonRTE/init/init',
 	'libs/pubsub',
-	'data/Data'
+	'data/Data',
+	'events/SelectHandler'
 	], function(
 		KeyHandler,
 		LineHandler,
 		Cursor,
 		init,
 		pubsub,
-		Data
+		Data,
+		SelectHandler
 		) {
 
 	var NonRTE = function(element) {
@@ -20,9 +22,9 @@ define([
 		this.keyhandler = new KeyHandler();
 		this.lineHandler = new LineHandler(this.element);
 		this.cursor = new Cursor();
+		this.selectHandler = new SelectHandler(this.element, this.handleSelect);
 
-
-		this.data = new Data();
+		this.data = new Data(this.lineHandler);
 
 		this.focusPosition = {
 			line: 0,
@@ -169,7 +171,16 @@ define([
 			this.cursor.positionOnLine(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
 		}.bind(this));
 
+
+		pubsub.subscribe('selection', function(subName, e) {
+			console.log(e);
+		}.bind(this))
+
 	};
+
+	NonRTE.prototype.handleSelect = function() {
+		console.log(arguments);
+	}
 
 	//CREATE MIXIN HERE
 	NonRTE.prototype.registerKey = function(key, fn) {
@@ -179,6 +190,7 @@ define([
 	NonRTE.prototype.registerKeySequence = function() {
 
 	};
+
 
 	//What the hell kind of name is this
 	//This creates a key trigger for a function to be called after a key is pressed until the 'stop()' on the called object is called

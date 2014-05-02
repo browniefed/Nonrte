@@ -11,7 +11,8 @@ define([
 	], function(
 		ClickHandler,
 		getOffsetFromClick,
-		pubsub
+		pubsub,
+		SelectHandler
 		) {
 
 	var CreateLine = function(linePosition) {
