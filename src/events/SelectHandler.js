@@ -16,7 +16,7 @@ define([], function() {
 
 	SelectionHandler.prototype.handleMouseDown = function(e) {
 		e.preventDefault();
-		this.fn(e, 'selectionstart');
+		this.fn('selectionstart', e);
 
 		this.node.addEventListener('mousemove', this.fnMouseMove , false);
 		this.node.addEventListener('mouseup', this.fnMouseEnd, false);
@@ -24,14 +24,14 @@ define([], function() {
 
 	SelectionHandler.prototype.handleMouseUp = function(e) {
 		e.preventDefault();
-		this.fn(e, 'selectionend');
+		this.fn('selectionend', e);
 		this.node.removeEventListener('mousemove', this.fnMouseMove, false);
 		this.node.removeEventListener('mouseup', this.fnMouseEnd, false);
 	}
 
 	SelectionHandler.prototype.handleMouseMove = function(e) {
 		e.preventDefault();
-		this.fn(e, 'selectionchange')
+		this.fn('selectionchange', e)
 	}
 
 

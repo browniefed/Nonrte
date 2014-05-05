@@ -5,7 +5,8 @@ define([
 	'NonRTE/init/init',
 	'libs/pubsub',
 	'data/Data',
-	'events/SelectHandler'
+	'events/SelectHandler',
+	'selection/Selection'
 	], function(
 		KeyHandler,
 		LineHandler,
@@ -178,8 +179,20 @@ define([
 
 	};
 
-	NonRTE.prototype.handleSelect = function() {
-		console.log(arguments);
+	NonRTE.prototype.handleSelect = function(subName, e) {
+		var offset = {x: e.offsetX, y: e.offsetY};
+
+		if (e.type === 'mousedown') {
+			this.currentSelection = new Selection(this.lineHandler, offset);
+		} else if e.type === 'mousemove') {
+
+		} else {
+			//END SELECTION
+		}
+		//createNewSelection
+		//setStartPoint
+		//as it moves then send it new coords
+
 	}
 
 	//CREATE MIXIN HERE

@@ -1,5 +1,6 @@
 define([], function() {
-	var Range = function(from, to) {
+	var Range = function(line, from, to) {
+		this.line = line;
 		this.from = from;
 		this.to = to;
 	};
