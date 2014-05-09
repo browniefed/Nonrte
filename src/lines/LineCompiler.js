@@ -12,6 +12,7 @@ define([
 				stringToCompile += buildWithWrappers(lineSegment.wrappers, lineSegment.text);
 			});
 
+			console.log(marked('__ *dd* __'));
 			return marked(stringToCompile);
 		}
 

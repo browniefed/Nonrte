@@ -16,7 +16,6 @@ define([
 		insertCharacter
 		) {
 
-		debugger;
 
 	var Line = function(linePosition) {
 		this.linePosition = linePosition;
@@ -66,6 +65,7 @@ define([
 	}
 
 	Line.prototype.insertCharacter = function(character, position) {
+		debugger;
 		var op = {},
 			lineOffset = 0,
 			insertAtIndex = insertCharacter;
@@ -74,12 +74,13 @@ define([
 			op.wrappers = [];
 		} else {
 			this.lineSegmentData.forEach(function(lineSegment) {
-				var offset = lineOffset = lineOffset + lineSegment.text.length,
+				var offset = lineSegment.text.length,
 					insert;
-				if (offset >= position) {
-					insert = offset - position;
+				if ( (offset + lineOffset) >= position) {
+					insert = position - lineOffset;
 					lineSegment.text = insertAtIndex(lineSegment.text, insert, character);
 				}
+				lineOffset += offset;
 			})
 		}
 	}
