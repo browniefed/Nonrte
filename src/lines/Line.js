@@ -74,7 +74,7 @@ define([
 			op.wrappers = [];
 		} else {
 			this.lineSegmentData.forEach(function(lineSegment) {
-				var offset = lineOffset + lineSegment.text.length,
+				var offset = lineOffset = lineOffset + lineSegment.text.length,
 					insert;
 				if (offset >= position) {
 					insert = offset - position;
