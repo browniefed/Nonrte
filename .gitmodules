@@ -1,3 +1,6 @@
 [submodule "libs/backburner"]
 	path = libs/backburner
 	url = https://github.com/ebryn/backburner.js.git
+[submodule "src/libs/marked"]
+	path = src/libs/marked
+	url = https://github.com/browniefed/marked.git
