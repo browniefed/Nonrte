@@ -14,14 +14,14 @@ define([
 	}
 
 	var Selection = function(lineHandler, offset) {
-		this.lineHandler = lineHandler;
-		this.startOffset = offset;
-		this.selectionRanges = {};
+		// this.lineHandler = lineHandler;
+		// this.startOffset = offset;
+		// this.selectionRanges = {};
 
-		this.startLine = this.getLineFromoffset(offset),
-		this.startLinePosition = this.lineHandler.getLinePosition(startLine);
+		// this.startLine = this.getLineFromoffset(offset),
+		// this.startLinePosition = this.lineHandler.getLinePosition(startLine);
 
-		this.selectionRanges[this.startLinePosition] = this.getRangeOnLine(this.startLine, startOffset, startOffset)
+		// this.selectionRanges[this.startLinePosition] = this.getRangeOnLine(this.startLine, startOffset, startOffset)
 	};
 
 	Selection.prototype.getLineFromOffset = function(offset) {

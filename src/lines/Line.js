@@ -13,9 +13,10 @@ define([
 		ClickHandler,
 		getOffsetFromClick,
 		pubsub,
-		insertCharacter,
-		SelectHandler
+		insertCharacter
 		) {
+
+		debugger;
 
 	var Line = function(linePosition) {
 		this.linePosition = linePosition;
@@ -27,7 +28,13 @@ define([
 		this.node.appendChild(this.innerLine);
 		this.innerLine.appendChild(this.textNode);
 
-		this.lineSegmentData = []
+
+		this.lineSegmentData = [
+			{
+				text: '',
+				wrappers: []
+			}
+		];
 
 		ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
 
@@ -60,7 +67,8 @@ define([
 
 	Line.prototype.insertCharacter = function(character, position) {
 		var op = {},
-			lineOffset = 0;
+			lineOffset = 0,
+			insertAtIndex = insertCharacter;
 		if (this.lineSegmentData.length == 0) {
 			op.text = character;
 			op.wrappers = [];
@@ -68,9 +76,9 @@ define([
 			this.lineSegmentData.forEach(function(lineSegment) {
 				var offset = lineOffset + lineSegment.text.length,
 					insert;
-				if (offset > position) {
+				if (offset >= position) {
 					insert = offset - position;
-					insertCharacter(lineSegment.text, insert, 0, character);
+					lineSegment.text = insertAtIndex(lineSegment.text, insert, character);
 				}
 			})
 		}

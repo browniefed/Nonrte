@@ -101,6 +101,7 @@ define([
 			var line = this.lineHandler.getLine(this.focusPosition.line),
 				lineNode = line.getLineNode();
 
+				debugger;
 			line.insertCharacter(key, this.focusPosition.character);
 			line.setLineHtml(LineCompiler(line));
 

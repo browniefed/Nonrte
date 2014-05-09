@@ -693,9 +693,9 @@ var coords_getOffsetFromClick = function (buildCharacterWidths) {
     }(utils_text_buildCharacterWidths);
 
 var utils_text_insertCharacter = function () {
-        function insertCharacter(str, idx, str, s) {
-            return str.slice(0, idx) + s + this.slice(idx + Math.abs(rem));
-        }
+        var insertCharacter = function (str, idx, istr) {
+            return str.substr(0, idx) + istr + str.substr(idx);
+        };
         return insertCharacter;
     }();
 
@@ -705,6 +705,7 @@ var utils_text_insertCharacter = function () {
 	Will create a new line at a specified area. If it is beyond the length of the current lines then it will be created at the end.
 */
 var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub, insertCharacter) {
+        debugger;
         var Line = function (linePosition) {
             this.linePosition = linePosition;
             this.node = document.createElement('div');
@@ -714,7 +715,10 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub, insertChara
             this.textNode = document.createTextNode('');
             this.node.appendChild(this.innerLine);
             this.innerLine.appendChild(this.textNode);
-            this.lineSegmentData = [];
+            this.lineSegmentData = [{
+                    text: '',
+                    wrappers: []
+                }];
             ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
             return this;
         };
@@ -737,16 +741,16 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub, insertChara
             this.getLineNode().innerHTML = html;
         };
         Line.prototype.insertCharacter = function (character, position) {
-            var op = {}, lineOffset = 0;
+            var op = {}, lineOffset = 0, insertAtIndex = insertCharacter;
             if (this.lineSegmentData.length == 0) {
                 op.text = character;
                 op.wrappers = [];
             } else {
                 this.lineSegmentData.forEach(function (lineSegment) {
                     var offset = lineOffset + lineSegment.text.length, insert;
-                    if (offset > position) {
+                    if (offset >= position) {
                         insert = offset - position;
-                        insertCharacter(lineSegment.text, insert, 0, character);
+                        lineSegment.text = insertAtIndex(lineSegment.text, insert, character);
                     }
                 });
             }
@@ -926,11 +930,6 @@ var selection_Selection = function (Range, getOffsetFromClick) {
         var drawSelectionForRange = function (Range) {
         };
         var Selection = function (lineHandler, offset) {
-            this.lineHandler = lineHandler;
-            this.startOffset = offset;
-            this.selectionRanges = {};
-            this.startLine = this.getLineFromoffset(offset), this.startLinePosition = this.lineHandler.getLinePosition(startLine);
-            this.selectionRanges[this.startLinePosition] = this.getRangeOnLine(this.startLine, startOffset, startOffset);
         };
         Selection.prototype.getLineFromOffset = function (offset) {
             var lines = this.lineHandler.getLines();
@@ -1713,7 +1712,7 @@ var libs_marked_lib_marked = function () {
 
 var lines_LineCompiler = function (marked) {
         var LineCompiler = function (Line) {
-            var lineSegments = Line.getLineSegmentData(), stringToCompile = '';
+            var lineSegments = Line.getLineDataSegments(), stringToCompile = '';
             lineSegments.forEach(function (lineSegment) {
                 stringToCompile += buildWithWrappers(lineSegment.wrappers, lineSegment.text);
             });
@@ -1776,6 +1775,7 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
             }.bind(this));
             pubsub.subscribe('keypress.character', function (subName, key) {
                 var line = this.lineHandler.getLine(this.focusPosition.line), lineNode = line.getLineNode();
+                debugger;
                 line.insertCharacter(key, this.focusPosition.character);
                 line.setLineHtml(LineCompiler(line));
                 this.focusPosition.character++;

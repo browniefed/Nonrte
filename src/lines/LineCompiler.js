@@ -5,7 +5,7 @@ define([
 		) {
 
 		var LineCompiler = function(Line) {
-			var lineSegments = Line.getLineSegmentData(),
+			var lineSegments = Line.getLineDataSegments(),
 				stringToCompile = '';
 
 			lineSegments.forEach(function(lineSegment) {
