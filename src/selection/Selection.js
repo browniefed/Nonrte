@@ -9,7 +9,7 @@ define([
 
 
 	//Range could be a single character, an entire line.
-	var drawSelectionForRange(Range) {
+	var drawSelectionForRange = function(Range) {
 
 	}
 
@@ -35,10 +35,9 @@ define([
 	Selection.prototype.highlight = function() {
 		this.selectionRange.forEach(function(Range) {
 
-		};
+		});
 	};
 
-		var offset = getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
 
 	return Selection;
 });

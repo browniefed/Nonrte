@@ -6,7 +6,9 @@ define([
 	'libs/pubsub',
 	'data/Data',
 	'events/SelectHandler',
-	'selection/Selection'
+	'selection/Selection',
+	'libs/marked/lib/marked',
+	'lines/LineCompiler'
 	], function(
 		KeyHandler,
 		LineHandler,
@@ -14,10 +16,14 @@ define([
 		init,
 		pubsub,
 		Data,
-		SelectHandler
+		SelectHandler,
+		Selection,
+		marked,
+		LineCompiler
 		) {
 
 	var NonRTE = function(element) {
+		this.marked = marked;
 		this.element = element;
 		
 		this.keyhandler = new KeyHandler();
@@ -31,6 +37,7 @@ define([
 			line: 0,
 			character: 0
 		};
+
 
 		init(this);
 
@@ -91,10 +98,14 @@ define([
 		}.bind(this));
 
 		pubsub.subscribe('keypress.character', function(subName, key) {
-			var textEl = this.lineHandler.getLine(this.focusPosition.line).getTextNode();
-			textEl.insertData(this.focusPosition.character, key);
+			var line = this.lineHandler.getLine(this.focusPosition.line),
+				lineNode = line.getLineNode();
+
+			line.insertCharacter(key, this.focusPosition.character);
+			line.setLineHtml(LineCompiler(line));
+
 			this.focusPosition.character++;
-			this.cursor.moveToCharacterPosition(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
+			// this.cursor.moveToCharacterPosition(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
 		}.bind(this));
 
 		pubsub.subscribe('lineClick', function(sub, e) {
@@ -184,7 +195,7 @@ define([
 
 		if (e.type === 'mousedown') {
 			this.currentSelection = new Selection(this.lineHandler, offset);
-		} else if e.type === 'mousemove') {
+		} else if (e.type === 'mousemove') {
 
 		} else {
 			//END SELECTION
