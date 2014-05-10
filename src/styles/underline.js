@@ -1,7 +1,7 @@
 define([], function() {
-	var strikethrough = {
+	var underline = {
 		style: function() {
-			return '-';
+			return '_';
 		}
 	}
-})
+});

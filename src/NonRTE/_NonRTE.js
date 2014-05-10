@@ -104,6 +104,7 @@ define([
 			line.insertCharacter(key, this.focusPosition.character);
 			line.setLineHtml(LineCompiler(line));
 
+
 			this.focusPosition.character++;
 			// this.cursor.moveToCharacterPosition(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
 		}.bind(this));

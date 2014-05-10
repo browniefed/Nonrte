@@ -1,7 +1,8 @@
 define([], function() {
 	var italic = {
-		start: '_ ',
-		end: ' _'
+		style: function() {
+			return '*';
+		}
 	};
 
 	return italic;

@@ -7,13 +7,15 @@ define([
 	'events/ClickHandler',
 	'coords/getOffsetFromClick',
 	'libs/pubsub',
-	'utils/text/insertCharacter'
+	'utils/text/insertCharacter',
+	'styles/styles'
 
 	], function(
 		ClickHandler,
 		getOffsetFromClick,
 		pubsub,
-		insertCharacter
+		insertCharacter,
+		styles
 		) {
 
 
@@ -31,7 +33,7 @@ define([
 		this.lineSegmentData = [
 			{
 				text: '',
-				wrappers: []
+				styles: {}
 			}
 		];
 
@@ -70,7 +72,7 @@ define([
 			insertAtIndex = insertCharacter;
 		if (this.lineSegmentData.length == 0) {
 			op.text = character;
-			op.wrappers = [];
+			op.styles = {};
 		} else {
 			this.lineSegmentData.forEach(function(lineSegment) {
 				var offset = lineSegment.text.length,
@@ -82,6 +84,10 @@ define([
 				lineOffset += offset;
 			})
 		}
+	}
+
+	Line.prototype.addStyle = function(style, value) {
+		this.getLineDataSegments()[0].styles[style] = value;
 	}
 
 	Line.prototype.getLineData = function() {

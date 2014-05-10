@@ -1,7 +1,8 @@
 define([], function(){
 	var bold =  {
-		start: '** ',
-		end: '  **'
+		style: function() {
+			return '#';
+		}
 	};
 
 	return bold;

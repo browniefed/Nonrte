@@ -1,7 +1,9 @@
 define([
-	'libs/marked/lib/marked'
+	'libs/marked/lib/marked',
+	'styles/styles'
 	], function(
-		marked
+		marked,
+		stylesCollection
 		) {
 
 		var LineCompiler = function(Line) {
@@ -9,20 +11,34 @@ define([
 				stringToCompile = '';
 
 			lineSegments.forEach(function(lineSegment) {
-				stringToCompile += buildWithWrappers(lineSegment.wrappers, lineSegment.text);
+				stringToCompile += buildWithStyles(lineSegment.styles, lineSegment.text);
 			});
 
-			console.log(marked('__ *dd* __'));
 			return marked(stringToCompile);
 		}
 
-		function buildWithWrappers(wrappers, text) {
-			var stringToWrap = text;
-			wrappers.forEach(function(wrapper) {
-				stringToWrap = wrapper.start + stringToWrap + wrapper.end;
-			});
+		function buildWithStyles(styles, text) {
+			var stringToWrap = text,
+				frontWrap = '{[',
+				frontCloseWrap = ']: ',
+				backClose = ' :}',
+				style,
+				styleCompile = '';
+
+			for (style in styles) {
+				if (styles.hasOwnProperty(style)) {
+					styleCompile += stylesCollection[style].style(styles[style]);
+				}
+			}
+			if (!styleCompile) {
+				return stringToWrap;
+			}
+			
+			stringToWrap = frontWrap + styleCompile + frontCloseWrap + stringToWrap + backClose;
+
 			return stringToWrap;
 		}
 
 		return LineCompiler;
 })
+
