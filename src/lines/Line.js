@@ -65,7 +65,6 @@ define([
 	}
 
 	Line.prototype.insertCharacter = function(character, position) {
-		debugger;
 		var op = {},
 			lineOffset = 0,
 			insertAtIndex = insertCharacter;
