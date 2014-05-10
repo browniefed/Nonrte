@@ -3,5 +3,7 @@ define([], function() {
 		style: function(family) {
 			return '^(' + family + ')';
 		}
-	}
+	};
+
+	return font;
 });

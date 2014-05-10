@@ -86,7 +86,7 @@ define([
 		}
 	}
 
-	Line.prototype.addStyle = function(style, value) {
+	Line.prototype.addStyle = function(style, value, from, to) {
 		this.getLineDataSegments()[0].styles[style] = value;
 	}
 

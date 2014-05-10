@@ -189,6 +189,36 @@ define([
 			console.log(e);
 		}.bind(this))
 
+
+		pubsub.subscribe('style.bold', function(subName, e) {
+			this.lineHandler.getLine(this.focusPosition.line).addStyle('bold');
+			pubsub.publish('recompileLine', this.focusPosition.line);
+		}.bind(this));
+
+		pubsub.subscribe('style.italic', function(subName, e) {
+			this.lineHandler.getLine(this.focusPosition.line).addStyle('italic');
+			pubsub.publish('recompileLine', this.focusPosition.line);
+
+		}.bind(this));
+
+		pubsub.subscribe('style.strikethrough', function(subName, e) {
+			this.lineHandler.getLine(this.focusPosition.line).addStyle('strikethrough');
+			pubsub.publish('recompileLine', this.focusPosition.line);
+
+		}.bind(this));
+
+		pubsub.subscribe('style.underline', function(subName, e) {
+			this.lineHandler.getLine(this.focusPosition.line).addStyle('underline');
+			pubsub.publish('recompileLine', this.focusPosition.line);
+
+		}.bind(this));
+
+		pubsub.subscribe('recompileLine', function(subName, lineNumber) {
+			var line = this.lineHandler.getLine(lineNumber);
+			line.setLineHtml(LineCompiler(line));
+		}.bind(this));
+
+
 	};
 
 	NonRTE.prototype.handleSelect = function(subName, e) {

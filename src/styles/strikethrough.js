@@ -4,4 +4,6 @@ define([], function() {
 			return '-';
 		}
 	}
+
+	return strikethrough;
 })

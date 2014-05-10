@@ -630,9 +630,25 @@ https://github.com/mroderick/PubSubJS
 			keyboard.bind( 'down', this.emitDown.bind( this ) );
 			keyboard.bind( 'left', this.emitLeft.bind( this ) );
 			keyboard.bind( 'right', this.emitRight.bind( this ) );
+			keyboard.bind( 'mod+b', this.emitBold.bind( this ) );
+			keyboard.bind( 'mod+i', this.emitItalic.bind( this ) );
+			keyboard.bind( 'mod+5', this.emitStrikeThrough.bind( this ) );
+			keyboard.bind( 'mod+u', this.emitUnderline.bind( this ) );
 		};
 		KeyHandler.prototype.registerKeyHandler = function( cb ) {
 			this.keyHandlers.push( cb );
+		};
+		KeyHandler.prototype.emitBold = function( e ) {
+			pubsub.publish( 'style.bold', e );
+		};
+		KeyHandler.prototype.emitItalic = function( e ) {
+			pubsub.publish( 'style.italic', e );
+		};
+		KeyHandler.prototype.emitStrikeThrough = function( e ) {
+			pubsub.publish( 'style.strikethrough', e );
+		};
+		KeyHandler.prototype.emitUnderline = function( e ) {
+			pubsub.publish( 'style.underline', e );
 		};
 		KeyHandler.prototype.emitKey = function( e ) {
 			pubsub.publish( 'keypress.character', String.fromCharCode( e.which ) );
@@ -769,6 +785,7 @@ https://github.com/mroderick/PubSubJS
 				return '~(' + hex + ')';
 			}
 		};
+		return color;
 	}();
 
 	var styles_font = function() {
@@ -777,6 +794,7 @@ https://github.com/mroderick/PubSubJS
 				return '^(' + family + ')';
 			}
 		};
+		return font;
 	}();
 
 	var styles_fontSize = function() {
@@ -785,6 +803,7 @@ https://github.com/mroderick/PubSubJS
 				return '+(' + size + ')';
 			}
 		};
+		return fontSize;
 	}();
 
 	var styles_highlight = function() {
@@ -793,6 +812,7 @@ https://github.com/mroderick/PubSubJS
 				return '=(' + hex + ')';
 			}
 		};
+		return highlight;
 	}();
 
 	var styles_italic = function() {
@@ -810,6 +830,7 @@ https://github.com/mroderick/PubSubJS
 				return '-';
 			}
 		};
+		return strikethrough;
 	}();
 
 	var styles_underline = function() {
@@ -818,6 +839,7 @@ https://github.com/mroderick/PubSubJS
 				return '_';
 			}
 		};
+		return underline;
 	}();
 
 	var styles_styles = function( bold, color, font, fontSize, highlight, italic, strikethrough, underline ) {
@@ -892,7 +914,7 @@ https://github.com/mroderick/PubSubJS
 				} );
 			}
 		};
-		Line.prototype.addStyle = function( style, value ) {
+		Line.prototype.addStyle = function( style, value, from, to ) {
 			this.getLineDataSegments()[ 0 ].styles[ style ] = value;
 		};
 		Line.prototype.getLineData = function() {
@@ -2074,7 +2096,6 @@ https://github.com/mroderick/PubSubJS
 			pubsub.subscribe( 'keypress.character', function( subName, key ) {
 				var line = this.lineHandler.getLine( this.focusPosition.line ),
 					lineNode = line.getLineNode();
-				line.addStyle( 'bold' );
 				line.insertCharacter( key, this.focusPosition.character );
 				line.setLineHtml( LineCompiler( line ) );
 				this.focusPosition.character++;
@@ -2137,6 +2158,26 @@ https://github.com/mroderick/PubSubJS
 			}.bind( this ) );
 			pubsub.subscribe( 'selection', function( subName, e ) {
 				console.log( e );
+			}.bind( this ) );
+			pubsub.subscribe( 'style.bold', function( subName, e ) {
+				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'bold' );
+				pubsub.publish( 'recompileLine', this.focusPosition.line );
+			}.bind( this ) );
+			pubsub.subscribe( 'style.italic', function( subName, e ) {
+				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'italic' );
+				pubsub.publish( 'recompileLine', this.focusPosition.line );
+			}.bind( this ) );
+			pubsub.subscribe( 'style.strikethrough', function( subName, e ) {
+				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'strikethrough' );
+				pubsub.publish( 'recompileLine', this.focusPosition.line );
+			}.bind( this ) );
+			pubsub.subscribe( 'style.underline', function( subName, e ) {
+				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'underline' );
+				pubsub.publish( 'recompileLine', this.focusPosition.line );
+			}.bind( this ) );
+			pubsub.subscribe( 'recompileLine', function( subName, lineNumber ) {
+				var line = this.lineHandler.getLine( lineNumber );
+				line.setLineHtml( LineCompiler( line ) );
 			}.bind( this ) );
 		};
 		NonRTE.prototype.handleSelect = function( subName, e ) {

@@ -3,5 +3,7 @@ define([], function() {
 		style: function() {
 			return '_';
 		}
-	}
+	};
+
+	return underline;
 });

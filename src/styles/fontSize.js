@@ -3,5 +3,7 @@ define([], function() {
 		style: function(size) {
 			return '+(' + size + ')';
 		}
-	}
+	};
+
+	return fontSize;
 });

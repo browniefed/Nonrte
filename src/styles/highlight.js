@@ -3,5 +3,7 @@ define([], function() {
 		style: function(hex) {
 			return '=(' + hex + ')';
 		}
-	}
+	};
+
+	return highlight;
 });
