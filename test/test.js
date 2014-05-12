@@ -1,0 +1,1 @@
+//I guess I should write some tests. However stuff be so dynamic I'm not going to write tests just yet
