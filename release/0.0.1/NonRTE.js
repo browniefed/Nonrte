@@ -2101,6 +2101,7 @@ https://github.com/mroderick/PubSubJS
 				this.focusPosition.character++;
 			}.bind( this ) );
 			pubsub.subscribe( 'lineClick', function( sub, e ) {
+				debugger;
 				this.focusPosition.character = e.characterOffset.clickedCharacter;
 				this.focusPosition.line = e.line.getPosition();
 				this.cursor.positionOnLine( e.line, this.focusPosition.character );

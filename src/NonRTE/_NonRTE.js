@@ -110,6 +110,17 @@ define([
 		}.bind(this));
 
 		pubsub.subscribe('lineClick', function(sub, e) {
+
+			//Get offset inside container
+			var offset = {
+				target: e.original.target,
+				originalOffset: e.original.target.parentNode.offsetLeft,
+				offsetInisde: e.original.offsetX - e.original.target.parentNode.offsetLeft;
+			};
+			//Clicked position
+			//Loop over the content w/ style applied.
+			//add to originalOffset
+
 			this.focusPosition.character = e.characterOffset.clickedCharacter;
 			this.focusPosition.line = e.line.getPosition();
 			this.cursor.positionOnLine(e.line, this.focusPosition.character);

@@ -1974,6 +1974,7 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
                 this.focusPosition.character++;
             }.bind(this));
             pubsub.subscribe('lineClick', function (sub, e) {
+                debugger;
                 this.focusPosition.character = e.characterOffset.clickedCharacter;
                 this.focusPosition.line = e.line.getPosition();
                 this.cursor.positionOnLine(e.line, this.focusPosition.character);
