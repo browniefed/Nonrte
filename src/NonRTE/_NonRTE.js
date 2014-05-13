@@ -202,7 +202,7 @@ define([
 
 
 		pubsub.subscribe('style.bold', function(subName, e) {
-			this.lineHandler.getLine(this.focusPosition.line).addStyle('bold');
+			this.lineHandler.getLine(this.focusPosition.line).addSegment().addStyle('bold');
 			pubsub.publish('recompileLine', this.focusPosition.line);
 		}.bind(this));
 

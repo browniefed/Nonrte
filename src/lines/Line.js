@@ -66,6 +66,10 @@ define([
 		this.getLineNode().innerHTML = html;
 	}
 
+	Line.prototype.addLineSegment = function() {
+		this.lineSegmentData.push({text:'b', styles:{}})
+	}
+
 	Line.prototype.insertCharacter = function(character, position) {
 		var op = {},
 			lineOffset = 0,
@@ -86,8 +90,15 @@ define([
 		}
 	}
 
-	Line.prototype.addStyle = function(style, value, from, to) {
-		this.getLineDataSegments()[0].styles[style] = value;
+	Line.prototype.addStyle = function(style, value, range) {
+		if (arguments.length === 2 && typeof value == 'object') {
+			range = value;
+		}
+		if ( !range ) {
+			//Then just next press of a key should be bold;
+		else if (range.from && (!range.to || range.to == 0)) 
+			this.getLineDataSegments()[this.getLineDataSegmentsCount() - 1].styles[style] = value;
+		}
 	}
 
 	Line.prototype.getLineData = function() {
@@ -95,6 +106,10 @@ define([
 	};
 	Line.prototype.getLineDataSegments = function() {
 		return this.lineSegmentData;
+	}
+
+	Line.prototype.getLineDataSegmentsCount = function() {
+		return this.getLineDataSegments().length;
 	}
 
 	//THIS IS REALLY BAD AND PROBABLY SHOULDNT BE IN EXISTENCE
