@@ -96,8 +96,9 @@ define([
 		}
 		if ( !range ) {
 			//Then just next press of a key should be bold;
-		else if (range.from && (!range.to || range.to == 0)) 
+		} else if (range.from && (!range.to || range.to == 0)) {
 			this.getLineDataSegments()[this.getLineDataSegmentsCount() - 1].styles[style] = value;
+		
 		}
 	}
 

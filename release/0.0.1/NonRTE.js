@@ -896,6 +896,12 @@ https://github.com/mroderick/PubSubJS
 		Line.prototype.setLineHtml = function( html ) {
 			this.getLineNode().innerHTML = html;
 		};
+		Line.prototype.addLineSegment = function() {
+			this.lineSegmentData.push( {
+				text: 'b',
+				styles: {}
+			} );
+		};
 		Line.prototype.insertCharacter = function( character, position ) {
 			var op = {}, lineOffset = 0,
 				insertAtIndex = insertCharacter;
@@ -914,14 +920,22 @@ https://github.com/mroderick/PubSubJS
 				} );
 			}
 		};
-		Line.prototype.addStyle = function( style, value, from, to ) {
-			this.getLineDataSegments()[ 0 ].styles[ style ] = value;
+		Line.prototype.addStyle = function( style, value, range ) {
+			if ( arguments.length === 2 && typeof value == 'object' ) {
+				range = value;
+			}
+			if ( !range ) {} else if ( range.from && ( !range.to || range.to == 0 ) ) {
+				this.getLineDataSegments()[ this.getLineDataSegmentsCount() - 1 ].styles[ style ] = value;
+			}
 		};
 		Line.prototype.getLineData = function() {
 			return this.textNode.data;
 		};
 		Line.prototype.getLineDataSegments = function() {
 			return this.lineSegmentData;
+		};
+		Line.prototype.getLineDataSegmentsCount = function() {
+			return this.getLineDataSegments().length;
 		};
 		Line.prototype.getPosition = function() {
 			return this.linePosition;
@@ -2101,7 +2115,11 @@ https://github.com/mroderick/PubSubJS
 				this.focusPosition.character++;
 			}.bind( this ) );
 			pubsub.subscribe( 'lineClick', function( sub, e ) {
-				debugger;
+				var offset = {
+					target: e.original.target,
+					originalOffset: e.original.target.parentNode.offsetLeft,
+					offsetInisde: e.original.offsetX - e.original.target.parentNode.offsetLeft
+				};
 				this.focusPosition.character = e.characterOffset.clickedCharacter;
 				this.focusPosition.line = e.line.getPosition();
 				this.cursor.positionOnLine( e.line, this.focusPosition.character );
@@ -2161,7 +2179,7 @@ https://github.com/mroderick/PubSubJS
 				console.log( e );
 			}.bind( this ) );
 			pubsub.subscribe( 'style.bold', function( subName, e ) {
-				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'bold' );
+				this.lineHandler.getLine( this.focusPosition.line ).addSegment().addStyle( 'bold' );
 				pubsub.publish( 'recompileLine', this.focusPosition.line );
 			}.bind( this ) );
 			pubsub.subscribe( 'style.italic', function( subName, e ) {

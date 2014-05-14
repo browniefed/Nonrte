@@ -19,7 +19,8 @@ define([
 		SelectHandler,
 		Selection,
 		marked,
-		LineCompiler
+		LineCompiler,
+		measuretext
 		) {
 
 	var NonRTE = function(element) {
@@ -37,7 +38,6 @@ define([
 			line: 0,
 			character: 0
 		};
-
 
 		init(this);
 
@@ -115,7 +115,7 @@ define([
 			var offset = {
 				target: e.original.target,
 				originalOffset: e.original.target.parentNode.offsetLeft,
-				offsetInisde: e.original.offsetX - e.original.target.parentNode.offsetLeft;
+				offsetInisde: e.original.offsetX - e.original.target.parentNode.offsetLeft
 			};
 			//Clicked position
 			//Loop over the content w/ style applied.
