@@ -37,7 +37,7 @@ define([
 			}
 		];
 
-		ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
+		// ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
 
 		return this;
 	};
@@ -124,16 +124,16 @@ define([
 	}
 
 	Line.prototype.lineClickHandle = function(e) {
-		var offset = getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
-		offset.offsetX += 2;
-		var message = {
-			line : this,
-			original : e,
-			offsets : {x : e.offsetX, y : e.offsetY},
-			characterOffset : offset
+		// var offset = getOffsetFromClick(this.textNode.data, {x: e.offsetX, y: e.offsetY});
+		// offset.offsetX += 2;
+		// var message = {
+		// 	line : this,
+		// 	original : e,
+		// 	offsets : {x : e.offsetX, y : e.offsetY},
+		// 	characterOffset : offset
 
-		};
-		pubsub.publish('lineClick', message);
+		// };
+		// pubsub.publish('lineClick', message);
 
 	}
 	

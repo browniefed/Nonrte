@@ -1,4 +1,9 @@
-define([], function() {
+define([
+	'libs/pubsub'
+
+	], function(
+		pubsub
+		) {
 	
 	var wrapEvent = function(fn) {
 		return fn;
@@ -16,7 +21,7 @@ define([], function() {
 
 	SelectionHandler.prototype.handleMouseDown = function(e) {
 		e.preventDefault();
-		this.fn('selectionstart', e);
+		pubsub.publish('selection.start', e);
 
 		this.node.addEventListener('mousemove', this.fnMouseMove , false);
 		this.node.addEventListener('mouseup', this.fnMouseEnd, false);
@@ -24,14 +29,14 @@ define([], function() {
 
 	SelectionHandler.prototype.handleMouseUp = function(e) {
 		e.preventDefault();
-		this.fn('selectionend', e);
+		pubsub.publish('selection.end', e);
 		this.node.removeEventListener('mousemove', this.fnMouseMove, false);
 		this.node.removeEventListener('mouseup', this.fnMouseEnd, false);
 	}
 
 	SelectionHandler.prototype.handleMouseMove = function(e) {
 		e.preventDefault();
-		this.fn('selectionchange', e)
+		pubsub.publish('selection.change', e)
 	}
 
 

@@ -8,7 +8,8 @@ define([
 	'events/SelectHandler',
 	'selection/Selection',
 	'libs/marked/lib/marked',
-	'lines/LineCompiler'
+	'lines/LineCompiler',
+	'coords/getOffsetFromClick'
 	], function(
 		KeyHandler,
 		LineHandler,
@@ -20,7 +21,7 @@ define([
 		Selection,
 		marked,
 		LineCompiler,
-		measuretext
+		getOffsetFromClick
 		) {
 
 	var NonRTE = function(element) {
@@ -197,12 +198,15 @@ define([
 
 
 		pubsub.subscribe('selection', function(subName, e) {
-			console.log(e);
+			var line = this.lineHandler.getLine(this.focusPosition.line),
+			offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
+
+			//Offset will be left, width
 		}.bind(this))
 
 
 		pubsub.subscribe('style.bold', function(subName, e) {
-			this.lineHandler.getLine(this.focusPosition.line).addSegment().addStyle('bold');
+			this.lineHandler.getLine(this.focusPosition.line).addStyle('bold');
 			pubsub.publish('recompileLine', this.focusPosition.line);
 		}.bind(this));
 

@@ -639,74 +639,90 @@ var events_ClickHandler = function () {
         return ClickHandler;
     }();
 
-var utils_text_buildCharacterWidths = function () {
-        var buildCharacterWidths = function () {
-                var _maxWidth = 0, _charWidthArray = {};
-                var generateASCIIwidth = function (cssStyle) {
-                    var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0, oldTotalWidth = 0, charWidth = 0, _cssStyle = cssStyle || 'font-family: arial; font-size: 12pt';
-                    container = document.createDocumentFragment();
-                    divWrapper = document.createElement('div');
-                    divWrapper.style = 'width: 6000px; visibility:hidden';
-                    charWrapper = document.createElement('span');
-                    charWrapper.style = cssStyle;
-                    testDrive = document.createElement('span');
-                    testDrive.appendChild(document.createTextNode('i'));
-                    divWrapper.appendChild(charWrapper);
-                    container.appendChild(divWrapper);
-                    document.body.appendChild(container);
-                    charWrapper.appendChild(document.createTextNode('f'));
-                    charWrapper.appendChild(testDrive);
-                    totalWidth = charWrapper.offsetWidth;
-                    charWrapper.insertBefore(document.createTextNode('\xA0'), testDrive);
-                    oldTotalWidth = totalWidth;
-                    totalWidth = charWrapper.offsetWidth;
-                    charWidth = totalWidth - oldTotalWidth + 0.4;
-                    _charWidthArray['_\xA0'] = charWidth;
-                    for (var i = 33; i <= 126; i++) {
-                        character = String.fromCharCode(i);
-                        charWrapper.insertBefore(document.createTextNode('' + character + character), testDrive);
-                        oldTotalWidth = totalWidth;
-                        totalWidth = charWrapper.offsetWidth;
-                        charWidth = (totalWidth - oldTotalWidth) / 2;
-                        _charWidthArray['_' + character] = charWidth;
-                        if (_maxWidth < _charWidthArray['_' + character]) {
-                            _maxWidth = _charWidthArray['_' + character];
-                        }
-                    }
-                    document.body.removeChild(divWrapper);
-                };
-                generateASCIIwidth();
-                var getCharacterWidth = function (character) {
-                    if (!!_charWidthArray['_' + character]) {
-                        return _charWidthArray['_' + character];
-                    } else {
-                        _charWidthArray['_' + character] = _maxWidth;
-                        return _maxWidth;
-                    }
-                };
-                return { getCharacterWidth: getCharacterWidth };
-            }();
-        return buildCharacterWidths;
+var text_measuretext = function () {
+        var cache = {}, emptySpan = document.createElement('span'), defaultStyle = 'padding: 0; margin: 0; visibility: hidden; position: absolute; left: -6000px;', replaceCharacters = { ' ': '&nbsp;' };
+        function getCharacterWidth(style, character, recalculate) {
+            style = sortStyle(style);
+            cache[style] = cache[style] || {};
+            if (cache[style][character] && !recalculate) {
+                return cache[style][character];
+            } else {
+                return cache[style][character] = measureCharacter(style, character);
+            }
+        }
+        function measureCharacter(style, character) {
+            emptySpan.style.cssText = defaultStyle + style;
+            if (replaceCharacters[character]) {
+                emptySpan.innerHTML = replaceCharacters[character];
+            } else {
+                emptySpan.innerText = character;
+            }
+            return emptySpan.offsetWidth;
+        }
+        function buildForRange(style, startChar, endChar) {
+            var startCode = startChar.charCodeAt(0), endCode = startCode.charCodeAt(0);
+            if (startChar > endChar) {
+                buildForString(stringFromRange(endChar, startChar));
+            } else {
+                buildForString(stringFromRange(endChar, startChar));
+            }
+        }
+        function stringFromRange(startCode, endCode) {
+            return String.fromCharCode.apply(String, buildRange(startCode, endCode + 1));
+        }
+        function buildForString(style, string) {
+            var characters = string.split(''), stringLength = 0;
+            characters.forEach(function (character) {
+                stringLength += measureCharacter(style, character);
+            });
+            return stringLength;
+        }
+        function sortStyle(style) {
+            return style.split(';').sort().reverse().join(';');
+        }
+        function buildRange(start, stop, step) {
+            if (arguments.length <= 1) {
+                stop = start || 0;
+                start = 0;
+            }
+            step = arguments[2] || 1;
+            var length = Math.max(Math.ceil((stop - start) / step), 0);
+            var idx = 0;
+            var range = new Array(length);
+            while (idx < length) {
+                range[idx++] = start;
+                start += step;
+            }
+            return range;
+        }
+        emptySpan.style.cssText = defaultStyle;
+        document.body.appendChild(emptySpan);
+        return {
+            getCharacterWidth: getCharacterWidth,
+            buildForRange: buildForRange,
+            buildForString: buildForString
+        };
     }();
 
-var coords_getOffsetFromClick = function (buildCharacterWidths) {
-        var getOffsetFromClick = function (text, offset) {
-            var currentOffset = 0, characterWidth = 0, offsetX = 0, clickedCharacter = 0;
-            text.split('').forEach(function (character, iterator) {
-                characterWidth = buildCharacterWidths.getCharacterWidth(character);
-                if (currentOffset + characterWidth < offset.x) {
-                    currentOffset += characterWidth;
-                    offsetX = currentOffset + characterWidth;
-                    clickedCharacter = iterator;
+var coords_getOffsetFromClick = function (measuretext) {
+        var getOffsetFromClick = function (el, offset) {
+            var currentOffset = 0, characterWidth = 0, offsetX = 0, clickedCharacter = 0, nodes = Array.prototype.slice.call(el.childNodes);
+            var cont = true;
+            nodes.forEach(function (node) {
+                cont = true;
+                while (cont) {
+                    if (node.tagName == 'P') {
+                        characterWidth += measuretext.buildForString(node.childNodes[0].data, 'font-size:12px;');
+                        cont = false;
+                    } else {
+                        cont = false;
+                    }
                 }
             });
-            return {
-                offsetX: offsetX,
-                clickedCharacter: clickedCharacter
-            };
+            debugger;
         };
         return getOffsetFromClick;
-    }(utils_text_buildCharacterWidths);
+    }(text_measuretext);
 
 var utils_text_insertCharacter = function () {
         var insertCharacter = function (str, idx, istr) {
@@ -820,7 +836,6 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub, insertChara
                     text: '',
                     styles: {}
                 }];
-            ClickHandler(this.innerLine, this.lineClickHandle.bind(this));
             return this;
         };
         Line.prototype.getNode = function () {
@@ -888,21 +903,6 @@ var lines_Line = function (ClickHandler, getOffsetFromClick, pubsub, insertChara
             return this.innerLine.clientHeight;
         };
         Line.prototype.lineClickHandle = function (e) {
-            var offset = getOffsetFromClick(this.textNode.data, {
-                    x: e.offsetX,
-                    y: e.offsetY
-                });
-            offset.offsetX += 2;
-            var message = {
-                    line: this,
-                    original: e,
-                    offsets: {
-                        x: e.offsetX,
-                        y: e.offsetY
-                    },
-                    characterOffset: offset
-                };
-            pubsub.publish('lineClick', message);
         };
         return Line;
     }(events_ClickHandler, coords_getOffsetFromClick, libs_pubsub, utils_text_insertCharacter, styles_styles);
@@ -938,6 +938,56 @@ var lines_LineHandler = function (Line) {
         };
         return LineHandler;
     }(lines_Line);
+
+var utils_text_buildCharacterWidths = function () {
+        var buildCharacterWidths = function () {
+                var _maxWidth = 0, _charWidthArray = {};
+                var generateASCIIwidth = function (cssStyle) {
+                    var container, divWrapper, charWrapper, testDrive, obj, character, totalWidth = 0, oldTotalWidth = 0, charWidth = 0, _cssStyle = cssStyle || 'font-family: arial; font-size: 12pt';
+                    container = document.createDocumentFragment();
+                    divWrapper = document.createElement('div');
+                    divWrapper.style = 'width: 6000px; visibility:hidden';
+                    charWrapper = document.createElement('span');
+                    charWrapper.style = cssStyle;
+                    testDrive = document.createElement('span');
+                    testDrive.appendChild(document.createTextNode('i'));
+                    divWrapper.appendChild(charWrapper);
+                    container.appendChild(divWrapper);
+                    document.body.appendChild(container);
+                    charWrapper.appendChild(document.createTextNode('f'));
+                    charWrapper.appendChild(testDrive);
+                    totalWidth = charWrapper.offsetWidth;
+                    charWrapper.insertBefore(document.createTextNode('\xA0'), testDrive);
+                    oldTotalWidth = totalWidth;
+                    totalWidth = charWrapper.offsetWidth;
+                    charWidth = totalWidth - oldTotalWidth + 0.4;
+                    _charWidthArray['_\xA0'] = charWidth;
+                    for (var i = 33; i <= 126; i++) {
+                        character = String.fromCharCode(i);
+                        charWrapper.insertBefore(document.createTextNode('' + character + character), testDrive);
+                        oldTotalWidth = totalWidth;
+                        totalWidth = charWrapper.offsetWidth;
+                        charWidth = (totalWidth - oldTotalWidth) / 2;
+                        _charWidthArray['_' + character] = charWidth;
+                        if (_maxWidth < _charWidthArray['_' + character]) {
+                            _maxWidth = _charWidthArray['_' + character];
+                        }
+                    }
+                    document.body.removeChild(divWrapper);
+                };
+                generateASCIIwidth();
+                var getCharacterWidth = function (character) {
+                    if (!!_charWidthArray['_' + character]) {
+                        return _charWidthArray['_' + character];
+                    } else {
+                        _charWidthArray['_' + character] = _maxWidth;
+                        return _maxWidth;
+                    }
+                };
+                return { getCharacterWidth: getCharacterWidth };
+            }();
+        return buildCharacterWidths;
+    }();
 
 var cursor_Cursor = function (buildCharacterWidths) {
         var cursorClasses = {
@@ -1007,7 +1057,7 @@ var data_Data = function (pubsub) {
         return Data;
     }(libs_pubsub);
 
-var events_SelectHandler = function () {
+var events_SelectHandler = function (pubsub) {
         var wrapEvent = function (fn) {
             return fn;
         };
@@ -1020,22 +1070,22 @@ var events_SelectHandler = function () {
         };
         SelectionHandler.prototype.handleMouseDown = function (e) {
             e.preventDefault();
-            this.fn('selectionstart', e);
+            pubsub.publish('selection.start', e);
             this.node.addEventListener('mousemove', this.fnMouseMove, false);
             this.node.addEventListener('mouseup', this.fnMouseEnd, false);
         };
         SelectionHandler.prototype.handleMouseUp = function (e) {
             e.preventDefault();
-            this.fn('selectionend', e);
+            pubsub.publish('selection.end', e);
             this.node.removeEventListener('mousemove', this.fnMouseMove, false);
             this.node.removeEventListener('mouseup', this.fnMouseEnd, false);
         };
         SelectionHandler.prototype.handleMouseMove = function (e) {
             e.preventDefault();
-            this.fn('selectionchange', e);
+            pubsub.publish('selection.change', e);
         };
         return SelectionHandler;
-    }();
+    }(libs_pubsub);
 
 var range_Range = function () {
         var Range = function (line, from, to) {
@@ -1937,7 +1987,7 @@ var lines_LineCompiler = function (marked, stylesCollection) {
         return LineCompiler;
     }(libs_marked_lib_marked, styles_styles);
 
-var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Data, SelectHandler, Selection, marked, LineCompiler) {
+var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Data, SelectHandler, Selection, marked, LineCompiler, getOffsetFromClick) {
         var NonRTE = function (element) {
             this.marked = marked;
             this.element = element;
@@ -2045,10 +2095,10 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
                 this.cursor.positionOnLine(this.lineHandler.getLine(this.focusPosition.line), this.focusPosition.character);
             }.bind(this));
             pubsub.subscribe('selection', function (subName, e) {
-                console.log(e);
+                var line = this.lineHandler.getLine(this.focusPosition.line), offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
             }.bind(this));
             pubsub.subscribe('style.bold', function (subName, e) {
-                this.lineHandler.getLine(this.focusPosition.line).addSegment().addStyle('bold');
+                this.lineHandler.getLine(this.focusPosition.line).addStyle('bold');
                 pubsub.publish('recompileLine', this.focusPosition.line);
             }.bind(this));
             pubsub.subscribe('style.italic', function (subName, e) {
@@ -2092,7 +2142,7 @@ var NonRTE__NonRTE = function (KeyHandler, LineHandler, Cursor, init, pubsub, Da
             };
         };
         return NonRTE;
-    }(keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub, data_Data, events_SelectHandler, selection_Selection, libs_marked_lib_marked, lines_LineCompiler);
+    }(keys_KeyHandler, lines_LineHandler, cursor_Cursor, NonRTE_init_init, libs_pubsub, data_Data, events_SelectHandler, selection_Selection, libs_marked_lib_marked, lines_LineCompiler, coords_getOffsetFromClick);
 
 var NonRTE = function (NonRTE) {
         return NonRTE;

@@ -1,31 +1,50 @@
 define([
 
-	'utils/text/buildCharacterWidths'
+	'text/measuretext'
 	], function(
-		buildCharacterWidths
+		measuretext
 	) {
 
-	var getOffsetFromClick = function(text, offset) {
+	var getOffsetFromClick = function(el, offset) {
 		var currentOffset = 0,
 			characterWidth = 0,
 			offsetX = 0,
-			clickedCharacter = 0;
+			clickedCharacter = 0,
+			nodes = Array.prototype.slice.call(el.childNodes);
 
-		text.split('').forEach(function(character, iterator) {
-			characterWidth =  buildCharacterWidths.getCharacterWidth(character);
+		var cont = true;
 
-			if ( (currentOffset + characterWidth) < offset.x) {
-				currentOffset += characterWidth;
-				offsetX = currentOffset + characterWidth;
-				clickedCharacter = iterator;
-			};
+		nodes.forEach(function(node) {
+			cont = true;
+			while (cont) {
+				if (node.tagName == 'P') {
+					characterWidth += measuretext.buildForString(node.childNodes[0].data, 'font-size:12px;');
+					cont = false;
+				} else {
+					cont = false;
+				}
+			}
 		});
 
 
-		return {
-			offsetX: offsetX,
-			clickedCharacter: clickedCharacter
-		}
+		// el.childNodes
+		debugger;
+
+		// text.split('').forEach(function(character, iterator) {
+		// 	characterWidth =  buildCharacterWidths.getCharacterWidth(character);
+
+		// 	if ( (currentOffset + characterWidth) < offset.x) {
+		// 		currentOffset += characterWidth;
+		// 		offsetX = currentOffset + characterWidth;
+		// 		clickedCharacter = iterator;
+		// 	};
+		// });
+
+
+		// return {
+		// 	offsetX: offsetX,
+		// 	clickedCharacter: clickedCharacter
+		// }
 	};
 
 
