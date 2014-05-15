@@ -458,3 +458,16 @@ body {
   height: 100px;
   background-color: #CCC;
 }
+
+/* line 3, ../sass/_selection.scss */
+.nonrte-line .nonrte-selection {
+  top: 0;
+  bottom: 0;
+  background-color: #4599eb;
+  opacity: .6;
+  position: absolute;
+}
+/* line 9, ../sass/_selection.scss */
+.nonrte-line .nonrte-selection.blur {
+  background-color: #DDD;
+}

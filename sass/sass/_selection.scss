@@ -1,0 +1,15 @@
+.nonrte-line {
+
+	.nonrte-selection {
+		z-index: 0;
+		top: 0;
+		bottom: 0;
+		background-color: #4599eb;
+		opacity: .6;
+		position: absolute;
+		&.blur {
+			background-color: #DDD;
+		}
+	}
+
+}

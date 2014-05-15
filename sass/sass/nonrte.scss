@@ -3,6 +3,8 @@
 	.nonrte-line-inner {
 		position: relative;
 		min-height: 20px;
+		z-index: 1;
+
 	}
 }
 
@@ -11,3 +13,4 @@
 @import "gdcdropdown";
 @import "gdcheader";
 @import "gdcmain";
+@import "selection";

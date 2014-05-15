@@ -197,13 +197,30 @@ define([
 		}.bind(this));
 
 
-		pubsub.subscribe('selection', function(subName, e) {
+		pubsub.subscribe('selection.start', function(subName, e) {
 			var line = this.lineHandler.getLine(this.focusPosition.line),
 			offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
 
-			//Offset will be left, width
+			this.startSelection = offset;
 		}.bind(this))
 
+		pubsub.subscribe('selection.change', function(subName, e) {
+			var line = this.lineHandler.getLine(this.focusPosition.line),
+			offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
+
+			
+
+			line.highlight(this.startSelection, offset);
+		}.bind(this));
+
+		pubsub.subscribe('selection.end', function(subName, e) {
+			var line = this.lineHandler.getLine(this.focusPosition.line),
+			offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
+
+			this.endSelection = offset;
+
+			line.highlight(this.startSelection, this.endSelection);
+		}.bind(this));
 
 		pubsub.subscribe('style.bold', function(subName, e) {
 			this.lineHandler.getLine(this.focusPosition.line).addStyle('bold');

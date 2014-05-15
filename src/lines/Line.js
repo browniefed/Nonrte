@@ -29,6 +29,9 @@ define([
 		this.node.appendChild(this.innerLine);
 		this.innerLine.appendChild(this.textNode);
 
+		this.selection = document.createElement('div');
+		this.selection.classList.add('nonrte-selection');
+		this.node.appendChild(this.selection);
 
 		this.lineSegmentData = [
 			{
@@ -121,6 +124,12 @@ define([
 	Line.prototype.getLineHeight = function(characterPosition) {
 		//In the future we need to adjust based upon what character the cursor is next to
 		return this.innerLine.clientHeight;
+	}
+
+	Line.prototype.highlight = function(start, end) {
+		this.selection.style.left = start.offset;
+		this.selection.style.width = (end.offset - start.offset) + 'px';
+
 	}
 
 	Line.prototype.lineClickHandle = function(e) {

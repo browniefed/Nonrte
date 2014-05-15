@@ -692,17 +692,17 @@ https://github.com/mroderick/PubSubJS
 				' ': '&nbsp;'
 			};
 
-		function getCharacterWidth( style, character, recalculate ) {
+		function getCharacterWidth( character, style, recalculate ) {
 			style = sortStyle( style );
 			cache[ style ] = cache[ style ] || {};
 			if ( cache[ style ][ character ] && !recalculate ) {
 				return cache[ style ][ character ];
 			} else {
-				return cache[ style ][ character ] = measureCharacter( style, character );
+				return cache[ style ][ character ] = measureCharacter( character, style );
 			}
 		}
 
-		function measureCharacter( style, character ) {
+		function measureCharacter( character, style ) {
 			emptySpan.style.cssText = defaultStyle + style;
 			if ( replaceCharacters[ character ] ) {
 				emptySpan.innerHTML = replaceCharacters[ character ];
@@ -712,13 +712,13 @@ https://github.com/mroderick/PubSubJS
 			return emptySpan.offsetWidth;
 		}
 
-		function buildForRange( style, startChar, endChar ) {
+		function buildForRange( startChar, endChar, style ) {
 			var startCode = startChar.charCodeAt( 0 ),
 				endCode = startCode.charCodeAt( 0 );
 			if ( startChar > endChar ) {
-				buildForString( stringFromRange( endChar, startChar ) );
+				buildForString( stringFromRange( endChar, startChar ), style );
 			} else {
-				buildForString( stringFromRange( endChar, startChar ) );
+				buildForString( stringFromRange( endChar, startChar ), style );
 			}
 		}
 
@@ -726,11 +726,11 @@ https://github.com/mroderick/PubSubJS
 			return String.fromCharCode.apply( String, buildRange( startCode, endCode + 1 ) );
 		}
 
-		function buildForString( style, string ) {
+		function buildForString( string, style ) {
 			var characters = string.split( '' ),
 				stringLength = 0;
 			characters.forEach( function( character ) {
-				stringLength += measureCharacter( style, character );
+				stringLength += measureCharacter( character, style );
 			} );
 			return stringLength;
 		}
@@ -741,7 +741,7 @@ https://github.com/mroderick/PubSubJS
 			characters.forEach( function( character ) {
 				stringFragments.push( {
 					character: character,
-					width: measureCharacter( style, character )
+					width: measureCharacter( character, style )
 				} );
 			} );
 			return stringFragments;
@@ -922,6 +922,9 @@ https://github.com/mroderick/PubSubJS
 			this.textNode = document.createTextNode( '' );
 			this.node.appendChild( this.innerLine );
 			this.innerLine.appendChild( this.textNode );
+			this.selection = document.createElement( 'div' );
+			this.selection.classList.add( 'nonrte-selection' );
+			this.node.appendChild( this.selection );
 			this.lineSegmentData = [ {
 				text: '',
 				styles: {}
@@ -992,6 +995,10 @@ https://github.com/mroderick/PubSubJS
 		};
 		Line.prototype.getLineHeight = function( characterPosition ) {
 			return this.innerLine.clientHeight;
+		};
+		Line.prototype.highlight = function( start, end ) {
+			this.selection.style.left = start.offset;
+			this.selection.style.width = end.offset - start.offset + 'px';
 		};
 		Line.prototype.lineClickHandle = function( e ) {};
 		return Line;
@@ -2265,9 +2272,21 @@ https://github.com/mroderick/PubSubJS
 			pubsub.subscribe( 'updateCursorPosition', function() {
 				this.cursor.positionOnLine( this.lineHandler.getLine( this.focusPosition.line ), this.focusPosition.character );
 			}.bind( this ) );
-			pubsub.subscribe( 'selection', function( subName, e ) {
+			pubsub.subscribe( 'selection.start', function( subName, e ) {
 				var line = this.lineHandler.getLine( this.focusPosition.line ),
 					offset = getOffsetFromClick( line.getLineNode(), e.offsetX );
+				this.startSelection = offset;
+			}.bind( this ) );
+			pubsub.subscribe( 'selection.change', function( subName, e ) {
+				var line = this.lineHandler.getLine( this.focusPosition.line ),
+					offset = getOffsetFromClick( line.getLineNode(), e.offsetX );
+				line.highlight( this.startSelection, offset );
+			}.bind( this ) );
+			pubsub.subscribe( 'selection.end', function( subName, e ) {
+				var line = this.lineHandler.getLine( this.focusPosition.line ),
+					offset = getOffsetFromClick( line.getLineNode(), e.offsetX );
+				this.endSelection = offset;
+				line.highlight( this.startSelection, this.endSelection );
 			}.bind( this ) );
 			pubsub.subscribe( 'style.bold', function( subName, e ) {
 				this.lineHandler.getLine( this.focusPosition.line ).addStyle( 'bold' );

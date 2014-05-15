@@ -6,6 +6,7 @@
 .nonrte-line .nonrte-line-inner {
   position: relative;
   min-height: 20px;
+  z-index: 1;
 }
 
 @-webkit-keyframes blink {
@@ -457,4 +458,18 @@ body {
   width: 100px;
   height: 100px;
   background-color: #CCC;
+}
+
+/* line 3, ../sass/_selection.scss */
+.nonrte-line .nonrte-selection {
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  background-color: #4599eb;
+  opacity: .6;
+  position: absolute;
+}
+/* line 10, ../sass/_selection.scss */
+.nonrte-line .nonrte-selection.blur {
+  background-color: #DDD;
 }
