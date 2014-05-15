@@ -14,17 +14,17 @@ define([], function () {
             };
 
 
-        function getCharacterWidth(style, character, recalculate) {
+        function getCharacterWidth(character, style, recalculate) {
             style = sortStyle(style);
             cache[style] = cache[style] || {};
             if (cache[style][character] && !recalculate) {
                 return cache[style][character];
             } else {
-                return cache[style][character] = measureCharacter(style, character);
+                return cache[style][character] = measureCharacter(character, style);
             }
         }
 
-        function measureCharacter(style, character) {
+        function measureCharacter(character, style) {
             emptySpan.style.cssText = defaultStyle + style;
             if (replaceCharacters[character]) {
                 emptySpan.innerHTML = replaceCharacters[character];
@@ -34,14 +34,14 @@ define([], function () {
             return emptySpan.offsetWidth;
         }
 
-        function buildForRange(style, startChar, endChar) {
+        function buildForRange(startChar, endChar, style) {
             var startCode = startChar.charCodeAt(0),
                 endCode = startCode.charCodeAt(0);
 
             if (startChar > endChar) {
-                buildForString(stringFromRange(endChar, startChar));
+                buildForString(stringFromRange(endChar, startChar), style);
             } else {
-                buildForString(stringFromRange(endChar, startChar));
+                buildForString(stringFromRange(endChar, startChar), style);
             }
         }
 
@@ -50,15 +50,26 @@ define([], function () {
 
         }
 
-        function buildForString(style, string) {
+        function buildForString(string, style) {
             var characters = string.split(''),
                 stringLength = 0;
 
             characters.forEach(function (character) {
-                stringLength += measureCharacter(style, character);
+                stringLength += measureCharacter(character, style);
             });
 
             return stringLength;
+        }
+
+        function buildForEachCharacter(string, style) {
+            var characters = string.split(''),
+                stringFragments = [];
+
+            characters.forEach(function (character) {
+                stringFragments.push({character: character, width: measureCharacter(character, style)});
+            });
+
+            return stringFragments;
         }
 
         function sortStyle(style) {
@@ -89,7 +100,8 @@ define([], function () {
         return {
             getCharacterWidth: getCharacterWidth,
             buildForRange: buildForRange,
-            buildForString: buildForString
+            buildForString: buildForString,
+            buildForEachCharacter: buildForEachCharacter
         };
 
     }())

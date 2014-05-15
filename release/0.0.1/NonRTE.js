@@ -735,6 +735,18 @@ https://github.com/mroderick/PubSubJS
 			return stringLength;
 		}
 
+		function buildForEachCharacter( string, style ) {
+			var characters = string.split( '' ),
+				stringFragments = [];
+			characters.forEach( function( character ) {
+				stringFragments.push( {
+					character: character,
+					width: measureCharacter( style, character )
+				} );
+			} );
+			return stringFragments;
+		}
+
 		function sortStyle( style ) {
 			return style.split( ';' ).sort().reverse().join( ';' );
 		}
@@ -759,7 +771,8 @@ https://github.com/mroderick/PubSubJS
 		return {
 			getCharacterWidth: getCharacterWidth,
 			buildForRange: buildForRange,
-			buildForString: buildForString
+			buildForString: buildForString,
+			buildForEachCharacter: buildForEachCharacter
 		};
 	}();
 
@@ -770,19 +783,33 @@ https://github.com/mroderick/PubSubJS
 				offsetX = 0,
 				clickedCharacter = 0,
 				nodes = Array.prototype.slice.call( el.childNodes );
-			var cont = true;
+			var cont = true,
+				span, charactersCollection;
 			nodes.forEach( function( node ) {
 				cont = true;
 				while ( cont ) {
 					if ( node.tagName == 'P' ) {
-						characterWidth += measuretext.buildForString( node.childNodes[ 0 ].data, 'font-size:12px;' );
+						if ( span = node.childNodes[ 0 ].tagName == 'SPAN' ) {
+							charactersCollection = measuretext.buildForEachCharacter( span.childNodes[ 0 ].data, span.style.cssText );
+						} else {
+							charactersCollection = measuretext.buildForEachCharacter( node.childNodes[ 0 ].data, 'font-size:12px;' );
+						}
+						charactersCollection.forEach( function( character ) {
+							if ( currentOffset < offset ) {
+								clickedCharacter = character.character;
+								offsetX = currentOffset += character.width;
+							}
+						} );
 						cont = false;
 					} else {
 						cont = false;
 					}
 				}
 			} );
-			debugger;
+			return {
+				offset: offsetX,
+				clickedCharacter: clickedCharacter
+			};
 		};
 		return getOffsetFromClick;
 	}( text_measuretext );

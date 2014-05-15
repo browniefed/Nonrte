@@ -12,13 +12,28 @@ define([
 			clickedCharacter = 0,
 			nodes = Array.prototype.slice.call(el.childNodes);
 
-		var cont = true;
+		var cont = true,
+			span,
+			charactersCollection;
 
 		nodes.forEach(function(node) {
 			cont = true;
 			while (cont) {
 				if (node.tagName == 'P') {
-					characterWidth += measuretext.buildForString(node.childNodes[0].data, 'font-size:12px;');
+					if (span = node.childNodes[0].tagName == 'SPAN') {
+						charactersCollection = measuretext.buildForEachCharacter(span.childNodes[0].data, span.style.cssText);
+					} else {
+						charactersCollection = measuretext.buildForEachCharacter(node.childNodes[0].data, 'font-size:12px;');
+					}
+
+
+					charactersCollection.forEach(function(character) {
+						if (currentOffset < offset) {
+							clickedCharacter = character.character;
+							offsetX = (currentOffset += character.width)
+						}
+					})
+
 					cont = false;
 				} else {
 					cont = false;
@@ -26,9 +41,13 @@ define([
 			}
 		});
 
+		return {
+			offset: offsetX,
+			clickedCharacter: clickedCharacter
+		}
+
 
 		// el.childNodes
-		debugger;
 
 		// text.split('').forEach(function(character, iterator) {
 		// 	characterWidth =  buildCharacterWidths.getCharacterWidth(character);
