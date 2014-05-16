@@ -28,7 +28,7 @@ define([
 
 
 					charactersCollection.forEach(function(character) {
-						if (currentOffset < offset) {
+						if ((currentOffset + character.width) < offset) {
 							clickedCharacter = character.character;
 							offsetX = (currentOffset += character.width)
 						}

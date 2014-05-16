@@ -208,8 +208,6 @@ define([
 			var line = this.lineHandler.getLine(this.focusPosition.line),
 			offset = getOffsetFromClick(line.getLineNode(), e.offsetX);
 
-			
-
 			line.highlight(this.startSelection, offset);
 		}.bind(this));
 

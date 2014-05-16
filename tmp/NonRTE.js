@@ -729,7 +729,7 @@ var coords_getOffsetFromClick = function (measuretext) {
                             charactersCollection = measuretext.buildForEachCharacter(node.childNodes[0].data, 'font-size:12px;');
                         }
                         charactersCollection.forEach(function (character) {
-                            if (currentOffset < offset) {
+                            if (currentOffset + character.width < offset) {
                                 clickedCharacter = character.character;
                                 offsetX = currentOffset += character.width;
                             }
